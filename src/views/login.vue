@@ -165,7 +165,6 @@ const loginMethod = () => {
       const { data } = res;
       const currentUser = data.userInfo;
       storage.set("accessToken", data.accessToken);
-      storage.set("refreshToken", data.refreshToken);
       userStore.setUserInfo(currentUser);
       router.push({ path: "/", query: { date: Date.now() } });
       emit("clickChild", false);
@@ -178,7 +177,6 @@ const loginMethod = () => {
   //   const { data } = res;
   //   const currentUser = data.userInfo;
   //   storage.set("accessToken", data.accessToken);
-  //   storage.set("refreshToken", data.refreshToken);
   //   userStore.setUserInfo(currentUser);
   //   router.push({ path: "/", query: { date: Date.now() } });
   //   emit("clickChild", false);

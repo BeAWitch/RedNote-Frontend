@@ -51,21 +51,6 @@ export const getUserInfoByToken = (accessToken: string) => {
 
 /**
  *
- * @param refreshToken
- * @returns
- */
-export const refreshToken = (refreshToken: string) => {
-  return request<any>({
-    url: `/web/auth/refreshToken`, // mock接口
-    method: "get",
-    params: {
-      refreshToken,
-    },
-  });
-};
-
-/**
- *
  * @param data
  * @returns
  */
@@ -116,12 +101,12 @@ export const getUserById = (userId:string) => {
  * @param userId
  * @returns
  */
-export const logout = (userId:string) => {
+export const logout = (accessToken:string) => {
   return request<any>({
-    url: `/web/auth/loginOut`, // mock接口
+    url: `/web/auth/logout`, // mock接口
     method: "get",
     params: {
-      userId
+      accessToken
     },
   });
 };
