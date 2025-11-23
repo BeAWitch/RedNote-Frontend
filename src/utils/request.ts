@@ -42,6 +42,32 @@ service.interceptors.response.use(
       window.localStorage.clear();
     }
     return Promise.reject(response.data);
+  },
+  (error) => { // 错误处理函数
+    if (error.response) {
+      const { status, data } = error.response;
+
+      switch (status) {
+        case 401:
+          ElMessage.warning("登录过期，请重新登录");
+          window.localStorage.clear();
+          break;
+        case 404:
+          ElMessage.warning("请求地址不存在");
+          break;
+        case 500:
+          ElMessage.warning('服务器内部错误');
+          break;
+        default:
+          ElMessage.error(data?.message || '请求失败');
+      }
+    } else if (error.request) {
+      ElMessage.error('网络连接失败，请检查网络');
+    } else {
+      ElMessage.error('请求配置错误');
+    }
+
+    return Promise.reject(error);
   }
 );
 

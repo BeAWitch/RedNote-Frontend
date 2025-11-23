@@ -273,7 +273,7 @@ const route = useRoute();
 const userStore = useUserStore();
 const searchStore = useSearchStore();
 const imStore = useImStore();
-const loginShow = ref(true);
+const loginShow = ref(userStore.isLogin() === false);
 const userInfo = ref<any>({});
 const showHistory = ref(false);
 const showSearch = ref(false);
@@ -506,7 +506,8 @@ const login = () => {
 };
 
 const userLogout = () => {
-  logout(storage.get("accessToken") as string).then(() => {
+  let accessToken = storage.get("accessToken") as string;
+  logout(accessToken).then(() => {
     userStore.logout();
     userInfo.value = null;
     loginShow.value = true;

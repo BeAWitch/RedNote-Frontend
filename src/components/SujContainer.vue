@@ -97,7 +97,7 @@ watch(
   () => {
     showTagState.value = false;
     historyRecordList.value = searchStore.getRecords();
-    getHotRecord().then((res) => {
+    getHotRecord(10).then((res) => {
       hotList.value = res.data;
     });
   }
@@ -114,7 +114,7 @@ const searchPage = (keyword: string) => {
 
 onMounted(() => {
   historyRecordList.value = searchStore.getRecords();
-  getHotRecord().then((res) => {
+  getHotRecord(10).then((res) => {
     hotList.value = res.data;
   });
 });

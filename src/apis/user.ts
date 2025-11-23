@@ -103,11 +103,8 @@ export const getUserById = (userId:string) => {
  */
 export const logout = (accessToken:string) => {
   return request<any>({
-    url: `/web/auth/logout`, // mock接口
-    method: "get",
-    params: {
-      accessToken
-    },
+    url: `/web/auth/logout/${accessToken}`, // mock接口
+    method: "get"
   });
 };
 

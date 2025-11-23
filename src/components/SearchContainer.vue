@@ -6,8 +6,7 @@
         <!---->
         <div class="sug-wrapper">
           <div class="sug-item" v-for="(item, index) in dataList" :key="index" @click="searchPage(item.content)">
-            <!---->
-            <span v-html="item.highlightContent"></span>
+            <span class="sug-text">{{ item.content }}</span>
           </div>
         </div>
       </div>
@@ -45,6 +44,7 @@ watchEffect(() => {
   dataList.value = [];
   if (props.recordList.length > 0) {
     dataList.value = props.recordList;
+    console.log(dataList.value);
   }
 });
 </script>

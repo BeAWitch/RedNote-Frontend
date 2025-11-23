@@ -9,7 +9,7 @@ import type { NoteDTO } from "@/types/note";
  */
 export const getRecommendNote = (currentPage: number, pageSize: number) => {
   return request<any>({
-    url: `/web/es/note/getRecommendNote/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/search/note/getRecommendNote/${currentPage}/${pageSize}`, // mock接口
     method: "get",
   });
 };
@@ -23,7 +23,7 @@ export const getRecommendNote = (currentPage: number, pageSize: number) => {
  */
 export const getNoteByDTO = (currentPage: number, pageSize: number, data: NoteDTO) => {
   return request<any>({
-    url: `/web/es/note/getNoteByDTO/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/search/note/getNoteByDTO/${currentPage}/${pageSize}`, // mock接口
     method: "post",
     data: data
   });
@@ -31,7 +31,7 @@ export const getNoteByDTO = (currentPage: number, pageSize: number, data: NoteDT
 
 export const getCategoryAgg = (data: NoteDTO) => {
   return request<any>({
-    url: `/web/es/note/getCategoryAgg`, // mock接口
+    url: `/web/search/note/getCategoryAgg`, // mock接口
     method: "post",
     data: data
   });
@@ -44,11 +44,8 @@ export const getCategoryAgg = (data: NoteDTO) => {
  */
 export const getRecordByKeyWord = (keyword: string) => {
   return request<any>({
-    url: `/web/es/record/getRecordByKeyWord`, // mock接口
-    method: "get",
-    params: {
-      keyword
-    }
+    url: `/web/search/record/getRecordByKeyWord/${keyword}`, // mock接口
+    method: "get"
   });
 };
 
@@ -56,10 +53,10 @@ export const getRecordByKeyWord = (keyword: string) => {
  *
  * @returns
  */
-export const getHotRecord = () => {
+export const getHotRecord = (count: number) => {
   return request<any>({
-    url: `web/es/record/getHotRecord`, // mock接口
-    method: "get",
+    url: `web/search/record/getHotRecord/${count}`, // mock接口
+    method: "get"
   });
 };
 
@@ -70,10 +67,8 @@ export const getHotRecord = () => {
  */
 export const addRecord = (keyword: string) => {
   return request<any>({
-    url: `/web/es/record/addRecord`, // mock接口
-    method: "get",
-    params: {
-      keyword
-    }
+    url: `/web/search/record/addRecord`, // mock接口
+    method: "post",
+    params: { keyword }
   });
 };
