@@ -163,3 +163,14 @@ export const convertImgToBase64 = (imageFile: any, callback: any, errorCallback:
   }
 }
 
+export const getFullFileUrl = (relativePath: string) => {
+  console.log("getFullFileUrl");
+  if (!relativePath) return '';
+  // 如果已经是完整URL，直接返回
+  if (relativePath.startsWith('http')) {
+    return relativePath;
+  }
+  const prefix = import.meta.env.VITE_APP_BASE_API;
+  // 拼接基础URL
+  return `${prefix}${relativePath}`;
+};

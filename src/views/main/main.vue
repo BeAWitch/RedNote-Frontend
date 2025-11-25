@@ -153,7 +153,7 @@ import { getNoteById, pinnedNote, deleteNoteByIds } from "@/apis/note";
 import { likeOrCollectionByDTO } from "@/apis/likeOrCollection";
 import type { NoteInfo } from "@/types/note";
 import type { LikeOrCollectionDTO } from "@/types/likeOrCollection";
-import { formateTime, getRandomString } from "@/utils/util";
+import { formateTime, getFileFromUrl, getRandomString, getFullFileUrl } from "@/utils/util";
 import { followById } from "@/apis/follower";
 import Comment from "@/components/Comment.vue";
 import type { CommentDTO } from "@/types/comment";

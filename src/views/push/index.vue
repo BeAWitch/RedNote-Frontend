@@ -165,7 +165,6 @@ const uploadHeader = ref({
 const categoryList = ref<Array<any>>([]);
 const options = ref([]);
 const note = ref<any>({});
-const showTagState = ref(false);
 const selectTagList = ref<Array<any>>([]);
 const currentPage = ref(1);
 const pageSize = 10;
@@ -183,8 +182,7 @@ const handleClose = (tag: string) => {
 };
 
 const handleInputBlur = () => {
-  inputVisible.value = false;
-  // showTagState.value = false;
+  handleInputConfirm();
 };
 
 const showInput = () => {
@@ -196,12 +194,18 @@ const showInput = () => {
 };
 
 const handleInputConfirm = () => {
-  if (inputValue.value) {
-    dynamicTags.value.push(inputValue.value);
+  if (inputValue.value && inputValue.value.trim()) {
+    const tag = inputValue.value.trim();
+    // 检查是否已存在
+    if (!dynamicTags.value.includes(tag)) {
+      dynamicTags.value.push(tag);
+    } else {
+      ElMessage.warning('标签已存在');
+    }
   }
+
   inputVisible.value = false;
   inputValue.value = "";
-  showTagState.value = false;
 };
 
 watch(
@@ -211,31 +215,10 @@ watch(
   }
 );
 
-// 监听外部点击
-onMounted(() => {
-  if (!isLogin.value) {
-    return;
-  }
-  document.getElementById("container")!.addEventListener("click", function (e) {
-    var event = e || window.event;
-    var target = event.target || (event.srcElement as any);
-    // if(target.id == "name") {
-    const tagContainer = document.getElementById("tagContainer");
-    if (tagContainer == null) return;
-
-    if (tagContainer.contains(target)) {
-      console.log("in");
-    } else {
-      showTagState.value = false;
-    }
-  });
-});
-
 const addTag = () => {
   selectTagList.value = [];
   currentPage.value = 1;
   setData();
-  showTagState.value = true;
 };
 
 const setData = () => {
@@ -293,15 +276,15 @@ const getNoteByIdMethod = (noteId: string) => {
 
 // 上传图片功能
 const pubslish = () => {
-  //验证
+  // 验证
   if (fileList.value.length <= 0 || note.value.title === null || categoryList.value.length <= 0) {
     ElMessage.error("请选择图片，标签，分类～");
     return;
   }
   pushLoading.value = true;
   let params = new FormData();
-  //注意此处对文件数组进行了参数循环添加
 
+  // 注意此处对文件数组进行了参数循环添加
   fileList.value.forEach((file: any) => {
     params.append("uploadFiles", file.raw);
   });
