@@ -25,7 +25,7 @@
       <div class="channel-container">
         <div class="scroll-container channel-scroll-container">
           <div class="content-container">
-            <div :class="categoryClass == '0' ? 'channel active' : 'channel'" @click="getNoteList">推荐</div>
+            <div :class="categoryClass == 0 ? 'channel active' : 'channel'" @click="getNoteList">推荐</div>
             <div
               :class="categoryClass == item.id ? 'channel active' : 'channel'"
               v-for="item in categoryList"
@@ -197,15 +197,15 @@ const pageSize = 20;
 const noteTotal = ref(0);
 const currentUserPage = ref(1);
 const userPageSize = 15;
-const categoryClass = ref("0");
+const categoryClass = ref(0);
 const typeClass = ref(0);
 const mainShow = ref(false);
-const nid = ref("");
+const nid = ref(NaN);
 const noteDTO = ref<NoteDTO>({
   keyword: "",
   type: 0,
-  cid: "",
-  cpid: "",
+  cid: NaN,
+  cpid: NaN,
 });
 const loadingMore = ref(false);
 const isShowUser = ref(false);
@@ -224,7 +224,7 @@ const getUserData = () => {
   });
 };
 
-const follow = (fid: string, index: number, type: number) => {
+const follow = (fid: number, index: number, type: number) => {
   followById(fid).then(() => {
     userDataList.value[index].isFollow = type == -1;
   });
@@ -253,9 +253,9 @@ watch(
   () => [route.query.keyword],
   (newVal) => {
     noteDTO.value.keyword = newVal[0] as string;
-    noteDTO.value.cid = "";
+    noteDTO.value.cid = NaN;
     noteDTO.value.type = 0;
-    categoryClass.value = "0";
+    categoryClass.value = 0;
     isShowUser.value = false;
     typeClass.value = 0;
     getNoteListByKeyword();
@@ -270,7 +270,7 @@ const getNoteByType = (type: number) => {
   getNoteListByKeyword();
 };
 
-const toMain = (noteId: string) => {
+const toMain = (noteId: number) => {
   // router.push({ name: "main", state: { nid: nid } });
   nid.value = noteId;
   mainShow.value = true;
@@ -330,8 +330,8 @@ const setData = (res: any) => {
 
 const getNoteList = () => {
   noteDTO.value.type = 0;
-  noteDTO.value.cid = "";
-  categoryClass.value = "0";
+  noteDTO.value.cid = NaN;
+  categoryClass.value = 0;
   noteList.value = [] as Array<any>;
   currentPage.value = 1;
   getNoteByDTO(currentPage.value, pageSize, noteDTO.value).then((res) => {
@@ -339,7 +339,7 @@ const getNoteList = () => {
   });
 };
 
-const getNoteListByCategory = (id: string) => {
+const getNoteListByCategory = (id: number) => {
   categoryClass.value = id;
   noteDTO.value.cid = id;
   noteList.value = [] as Array<any>;
@@ -367,8 +367,8 @@ const initData = () => {
   const keyword = route.query.keyword as string;
   if (keyword.trim().length > 0) {
     noteDTO.value.keyword = keyword as string;
-    noteDTO.value.cid = "";
-    categoryClass.value = "0";
+    noteDTO.value.cid = NaN;
+    categoryClass.value = 0;
     getNoteListByKeyword();
     getCategoryData();
   }

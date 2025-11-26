@@ -1,5 +1,5 @@
 export interface LikeOrCollectionDTO {
-  likeOrCollectionId: string;
-  publishUid: string;
+  likeOrCollectionId: number;
+  publishUid: number;
   type: number;
 }

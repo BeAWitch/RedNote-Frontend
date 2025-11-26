@@ -9,7 +9,7 @@ import type { NoteDTO } from "@/types/note";
  */
 export const getRecommendNote = (currentPage: number, pageSize: number) => {
   return request<any>({
-    url: `/web/search/note/getRecommendNote/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/search/note/getRecommendNote/${currentPage}/${pageSize}`,
     method: "get",
   });
 };
@@ -23,7 +23,7 @@ export const getRecommendNote = (currentPage: number, pageSize: number) => {
  */
 export const getNoteByDTO = (currentPage: number, pageSize: number, data: NoteDTO) => {
   return request<any>({
-    url: `/web/search/note/getNoteByDTO/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/search/note/getNoteByDTO/${currentPage}/${pageSize}`,
     method: "post",
     data: data
   });
@@ -31,7 +31,7 @@ export const getNoteByDTO = (currentPage: number, pageSize: number, data: NoteDT
 
 export const getCategoryAgg = (data: NoteDTO) => {
   return request<any>({
-    url: `/web/search/note/getCategoryAgg`, // mock接口
+    url: `/web/search/note/getCategoryAgg`,
     method: "post",
     data: data
   });
@@ -44,7 +44,7 @@ export const getCategoryAgg = (data: NoteDTO) => {
  */
 export const getRecordByKeyWord = (keyword: string) => {
   return request<any>({
-    url: `/web/search/record/getRecordByKeyWord/${keyword}`, // mock接口
+    url: `/web/search/record/getRecordByKeyWord/${keyword}`,
     method: "get"
   });
 };
@@ -55,7 +55,7 @@ export const getRecordByKeyWord = (keyword: string) => {
  */
 export const getHotRecord = (count: number) => {
   return request<any>({
-    url: `web/search/record/getHotRecord/${count}`, // mock接口
+    url: `web/search/record/getHotRecord/${count}`,
     method: "get"
   });
 };
@@ -67,7 +67,7 @@ export const getHotRecord = (count: number) => {
  */
 export const addRecord = (keyword: string) => {
   return request<any>({
-    url: `/web/search/record/addRecord`, // mock接口
+    url: `/web/search/record/addRecord`,
     method: "post",
     params: { keyword }
   });

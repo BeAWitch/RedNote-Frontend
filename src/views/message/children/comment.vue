@@ -102,7 +102,7 @@ const currentPage = ref(1);
 const pageSize = 12;
 const dataList = ref<Array<any>>([]);
 const dataTotal = ref(0);
-const currentUid = ref("");
+const currentUid = ref(NaN);
 
 const emit = defineEmits(["clickMain"]);
 
@@ -131,7 +131,7 @@ const getPageData = () => {
 };
 
 const initData = () => {
-  currentUid.value = userStore.getUserInfo().id;
+  currentUid.value = userStore.getUserInfo()?.id || NaN;
   getPageData();
 };
 initData();

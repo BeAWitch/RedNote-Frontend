@@ -6,7 +6,7 @@ import request from "@/utils/request";
  */
 export const getCountMessage = () => {
   return request<any>({
-    url: "/web/im/chat/getCountMessage", // mock接口
+    url: "/web/im/chat/getCountMessage",
     method: "get",
   });
 };
@@ -17,7 +17,7 @@ export const getCountMessage = () => {
  */
 export const getChatUserList = () => {
   return request<any>({
-    url: "/web/im/chat/getChatUserList", // mock接口
+    url: "/web/im/chat/getChatUserList",
     method: "get",
   });
 };
@@ -28,13 +28,13 @@ export const getChatUserList = () => {
  * @param type 类型
  * @returns success
  */
-export const clearMessageCount = (sendUid:string,type:number) => {
+export const clearMessageCount = (sendUid: number, type: number) => {
   return request<any>({
-    url: "/web/im/chat/clearMessageCount", // mock接口
+    url: "/web/im/chat/clearMessageCount",
     method: "get",
-    params:{
+    params: {
       sendUid,
-      type
+      type,
     }
   });
 };
@@ -49,10 +49,10 @@ export const clearMessageCount = (sendUid:string,type:number) => {
 export const getAllChatRecord = (
   currentPage: number,
   pageSize: number,
-  acceptUid: string
+  acceptUid: number
 ) => {
   return request<any>({
-    url: `/web/im/chat/getAllChatRecord/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/im/chat/getAllChatRecord/${currentPage}/${pageSize}`,
     method: "get",
     params: {
       acceptUid,
@@ -67,7 +67,7 @@ export const getAllChatRecord = (
  */
 export const sendMsg = (data: any) => {
   return request<any>({
-    url: "/web/im/chat/sendMsg", // mock接口
+    url: "/web/im/chat/sendMsg",
     method: "post",
     data: data,
   });

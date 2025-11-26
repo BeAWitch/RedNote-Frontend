@@ -187,10 +187,10 @@ const userStore = useUserStore();
 const uploadHeader = ref({
   accessToken: userStore.getToken(),
 });
-const currentUid = userStore.getUserInfo().id;
+const currentUid = userStore.getUserInfo()?.id || NaN;
 const userInfo = ref<any>({});
 //const uid = history.state.uid;
-const uid = route.query.uid as string;
+const uid = parseInt(route.query.uid as string);
 const type = ref(1);
 const chatShow = ref(false);
 const _isFollow = ref(false);
@@ -265,7 +265,7 @@ const handleAvatarSuccess: UploadProps["onSuccess"] = (response) => {
   commonUpdateUser();
 };
 
-const follow = (fid: string, type: number) => {
+const follow = (fid: number, type: number) => {
   followById(fid).then(() => {
     _isFollow.value = type == 0;
   });

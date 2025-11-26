@@ -253,7 +253,7 @@ const getHotTag = () => {
   });
 };
 
-const getNoteByIdMethod = (noteId: string) => {
+const getNoteByIdMethod = (noteId: number) => {
   getNoteById(noteId).then((res) => {
     const { data } = res;
     note.value = data;
@@ -296,13 +296,14 @@ const pubslish = () => {
   note.value.cid = categoryList.value[1];
   note.value.tagList = dynamicTags.value;
   const coverImage = new Image();
-  coverImage.src = fileList.value[0].url!;
+  if (fileList.value[0])
+    coverImage.src = fileList.value[0].url!;
   coverImage.onload = () => {
     const size = coverImage.width / coverImage.height;
     note.value.noteCoverHeight = size >= 1.3 ? 200 : 300;
     const noteData = JSON.stringify(note.value);
     params.append("noteData", noteData);
-    if (note.value.id !== null && note.value.id !== undefined) {
+    if (note.value.id !== null && !isNaN(note.value.id)) {
       updateNote(params);
     } else {
       saveNote(params);
@@ -349,8 +350,8 @@ const resetData = () => {
 const initData = () => {
   isLogin.value = userStore.isLogin();
   if (isLogin.value) {
-    const noteId = route.query.noteId as string;
-    if (noteId !== "" && noteId !== undefined) {
+    const noteId = parseInt(route.query.noteId as string);
+    if (!isNaN(noteId)) {
       getNoteByIdMethod(noteId);
     }
     getCategoryTreeData().then((res) => {

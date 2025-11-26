@@ -80,8 +80,8 @@ const imStore = useImStore();
 const userStore = useUserStore();
 
 const type = ref(3);
-const nid = ref("");
-const currentUid = ref("");
+const nid = ref(NaN);
+const currentUid = ref(NaN);
 const mainShow = ref(false);
 const _countMessage = ref({
   chatCount: 0,
@@ -118,7 +118,7 @@ const close = () => {
   mainShow.value = false;
 };
 
-const toMain = (val: string) => {
+const toMain = (val: number) => {
   nid.value = val;
   mainShow.value = true;
 };
@@ -126,7 +126,7 @@ const toMain = (val: string) => {
 const initData = () => {
   isLogin.value = userStore.isLogin();
   if (isLogin.value) {
-    currentUid.value = userStore.getUserInfo().id;
+    currentUid.value = userStore.getUserInfo()?.id || NaN;
   }
 };
 initData();

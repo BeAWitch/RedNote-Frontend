@@ -92,8 +92,8 @@ const imStore = useImStore();
 const userStore = useUserStore();
 const props = defineProps({
   acceptUid: {
-    type: String,
-    default: "",
+    type: Number,
+    default: 0,
   },
 });
 

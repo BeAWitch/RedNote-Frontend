@@ -11,7 +11,7 @@ import type { CommentDTO } from "@/types/comment";
 export const getCommentWithCommentByNoteId = (
   currentPage: number,
   pageSize: number,
-  noteId: string
+  noteId: number
 ) => {
   return request<any>({
     url: `/web/comment/getCommentWithCommentByNoteId/${currentPage}/${pageSize}`,
@@ -58,7 +58,7 @@ export const syncCommentByIds = (data: Array<string>) => {
 export const getTwoCommentPageByOneCommentId = (
   currentPage: number,
   pageSize: number,
-  oneCommentId: string
+  oneCommentId: number
 ) => {
   return request<any>({
     url: `/web/comment/getTwoCommentPageByOneCommentId/${currentPage}/${pageSize}`,

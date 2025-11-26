@@ -16,7 +16,7 @@ service.interceptors.request.use(
     const userStore = useUserStore();
     if (userStore.getToken()) {
       config.headers.accessToken = userStore.getToken();
-      config.headers.userId = userStore.getUserInfo().id;
+      config.headers.userId = userStore.getUserInfo()?.id || NaN;
     }
     return config;
   },

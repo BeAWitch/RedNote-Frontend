@@ -7,7 +7,7 @@ import type { LikeOrCollectionDTO } from "@/types/likeOrCollection";
  */
 export const likeOrCollectionByDTO = (data: LikeOrCollectionDTO) => {
   return request<any>({
-    url: `/web/likeOrCollection/likeOrCollectionByDTO`, // mock接口
+    url: `/web/likeOrCollection/likeOrCollectionByDTO`,
     method: "post",
     data: data,
   });
@@ -20,7 +20,7 @@ export const likeOrCollectionByDTO = (data: LikeOrCollectionDTO) => {
  */
 export const isLikeOrCollection = (data: LikeOrCollectionDTO) => {
   return request<any>({
-    url: `/web/likeOrCollection/isLikeOrCollection`, // mock接口
+    url: `/web/likeOrCollection/isLikeOrCollection`,
     method: "post",
     data: data,
   });
@@ -34,7 +34,7 @@ export const isLikeOrCollection = (data: LikeOrCollectionDTO) => {
  */
 export const getNoticeLikeOrCollection = (currentPage: number, pageSize: number) => {
   return request<any>({
-    url: `/web/likeOrCollection/getNoticeLikeOrCollection/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/likeOrCollection/getNoticeLikeOrCollection/${currentPage}/${pageSize}`,
     method: "get",
   });
 };

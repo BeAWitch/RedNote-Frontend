@@ -212,10 +212,10 @@ const trendData = ref<Array<any>>([]);
 const trendTotal = ref(0);
 const topLoading = ref(false);
 const mainShow = ref(false);
-const nid = ref("");
+const nid = ref(NaN);
 const likeOrCollectionDTO = ref<LikeOrCollectionDTO>({
-  likeOrCollectionId: "",
-  publishUid: "",
+  likeOrCollectionId: NaN,
+  publishUid: NaN,
   type: 0,
 });
 const isLogin = ref(false);
@@ -224,7 +224,7 @@ const handleLoad = (item: any) => {
   item.isLoading = true;
 };
 
-const toUser = (uid: string) => {
+const toUser = (uid: number) => {
   //router.push({ name: "user", state: { uid: uid } });
   router.push({ name: "user", query: { uid: uid } });
 };
@@ -245,12 +245,12 @@ const loadMoreData = () => {
   getFollowTrends();
 };
 
-const toMain = (noteId: string) => {
+const toMain = (noteId: number) => {
   nid.value = noteId;
   mainShow.value = true;
 };
 
-const close = (nid: string, val: any) => {
+const close = (nid: number, val: any) => {
   const index = trendData.value.findIndex((item) => item.nid === nid);
   console.log("---val", val, index);
   const _data = trendData.value[index];
@@ -276,7 +276,7 @@ const refresh = () => {
   });
 };
 
-const like = (nid: string, uid: string, index: number, val: number) => {
+const like = (nid: number, uid: number, index: number, val: number) => {
   likeOrCollectionDTO.value.likeOrCollectionId = nid;
   likeOrCollectionDTO.value.publishUid = uid;
   likeOrCollectionDTO.value.type = 1;

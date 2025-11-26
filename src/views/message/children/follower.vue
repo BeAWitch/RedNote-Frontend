@@ -59,7 +59,7 @@ const getPageData = () => {
   });
 };
 
-const follow = (fid: string, index: number, type: number) => {
+const follow = (fid: number, index: number, type: number) => {
   followById(fid).then(() => {
     dataList.value[index].isFollow = type == -1;
   });
@@ -70,7 +70,7 @@ const loadMore = () => {
   getPageData();
 };
 
-const toUser = (uid: string) => {
+const toUser = (uid: number) => {
   router.push({ name: "user", query: { uid: uid } });
 };
 

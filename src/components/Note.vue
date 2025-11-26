@@ -54,8 +54,8 @@
                   @click="toMain(item.id)"
                 >
                 </el-image>
-                <div v-if="item.auditStatus === '0'" class="overlay">审核中</div>
-                <div v-if="item.auditStatus === '2'" class="overlay not-passed">未通过⚠️</div>
+                <div v-if="item.auditStatus === 0" class="overlay">审核中</div>
+                <div v-if="item.auditStatus === 2" class="overlay not-passed">未通过⚠️</div>
               </div>
               <div class="footer">
                 <a class="title">
@@ -78,7 +78,7 @@
                   </span>
                 </div>
               </div>
-              <div class="top-tag-area" v-show="type === 1 && item.pinned === '1'">
+              <div class="top-tag-area" v-show="type === 1 && item.pinned === 1">
                 <div class="top-wrapper">置顶</div>
               </div>
             </div>
@@ -106,8 +106,8 @@ import Main from "@/views/main/main.vue";
 import { options } from "@/constants/constant";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
-const route = useRoute();
 
+const route = useRoute();
 const props = defineProps({
   type: {
     type: Number,
@@ -120,19 +120,19 @@ watch(
   ([newType]) => {
     currentPage.value = 1;
     noteList.value = [] as Array<any>;
-    getNoteList(newType);
+    getNoteList(newType as number);
   }
 );
 
 const noteList = ref<Array<any>>([]);
 const noteTotal = ref(0);
-const uid = route.query.uid as string;
+const uid = parseInt(route.query.uid as string);
 const currentPage = ref(1);
 const pageSize = 10;
-const nid = ref("");
+const nid = ref(NaN);
 const mainShow = ref(false);
 const userStore = useUserStore();
-const currentUid = userStore.getUserInfo().id;
+const currentUid = userStore.getUserInfo()?.id || NaN;
 
 const handleLoad = (item: any) => {
   item.isLoading = true;
@@ -142,7 +142,7 @@ const close = () => {
   mainShow.value = false;
 };
 
-const toMain = (noteId: string) => {
+const toMain = (noteId: number) => {
   // router.push({ name: "main", state: { nid: nid } });
   nid.value = noteId;
   mainShow.value = true;
@@ -153,7 +153,7 @@ const setData = (res: any) => {
   noteTotal.value = total;
   // 过滤掉不是当前用户且状态“审核中”或“未通过”的记录
   const filteredRecords = records.filter((item: any) => {
-    return item.uid === currentUid || (item.auditStatus !== "0" && item.auditStatus !== "2");
+    return item.uid === currentUid || (item.auditStatus !== 0 && item.auditStatus !== 2);
   });
   noteList.value.push(...filteredRecords);
 };

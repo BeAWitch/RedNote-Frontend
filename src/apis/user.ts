@@ -8,7 +8,7 @@ import type { UserLogin } from "@/types/user";
  */
 export const login = (data: any) => {
   return request<any>({
-    url: "/web/auth/login", // mock接口
+    url: "/web/auth/login",
     method: "post",
     data,
   });
@@ -41,7 +41,7 @@ export function importFile(deptId: number, file: File) {
  */
 export const getUserInfoByToken = (accessToken: string) => {
   return request<any>({
-    url: "/web/auth/getUserInfoByToken", // mock接口
+    url: "/web/auth/getUserInfoByToken",
     method: "get",
     params: {
       accessToken,
@@ -56,7 +56,7 @@ export const getUserInfoByToken = (accessToken: string) => {
  */
 export const loginByCode = (data: UserLogin) => {
   return request<any>({
-    url: "/web/auth/loginByCode", // mock接口
+    url: "/web/auth/loginByCode",
     method: "post",
     data,
   });
@@ -70,9 +70,9 @@ export const loginByCode = (data: UserLogin) => {
  * @param type
  * @returns
  */
-export const getTrendByUser = (currentPage:number,pageSize:number,userId:string,type:number) => {
+export const getTrendByUser = (currentPage: number, pageSize: number, userId: number, type:number) => {
   return request<any>({
-    url: `/web/user/getTrendByUser/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/user/getTrendByUser/${currentPage}/${pageSize}`,
     method: "get",
     params: {
       userId,
@@ -86,9 +86,9 @@ export const getTrendByUser = (currentPage:number,pageSize:number,userId:string,
  * @param userId
  * @returns
  */
-export const getUserById = (userId:string) => {
+export const getUserById = (userId: number) => {
   return request<any>({
-    url: `/web/user/getUserById`, // mock接口
+    url: `/web/user/getUserById`,
     method: "get",
     params: {
       userId
@@ -103,14 +103,14 @@ export const getUserById = (userId:string) => {
  */
 export const logout = (accessToken:string) => {
   return request<any>({
-    url: `/web/auth/logout/${accessToken}`, // mock接口
+    url: `/web/auth/logout/${accessToken}`,
     method: "get"
   });
 };
 
 export const updateUser = (data: any) => {
   return request<any>({
-    url: "/web/user/updateUser", // mock接口
+    url: "/web/user/updateUser",
     method: "post",
     data,
   });
@@ -118,7 +118,7 @@ export const updateUser = (data: any) => {
 
 export const getUserByKeyword = (currentPage: number, pageSize: number, keyword: string) => {
   return request<any>({
-    url: `/web/user/getUserByKeyword/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/user/getUserByKeyword/${currentPage}/${pageSize}`,
     method: "get",
     params: {
       keyword

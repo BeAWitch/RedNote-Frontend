@@ -3,7 +3,7 @@
     <div class="channel-container">
       <div class="scroll-container channel-scroll-container">
         <div class="content-container">
-          <div :class="categoryClass == '0' ? 'channel active' : 'channel'" @click="getNoteList">推荐</div>
+          <div :class="categoryClass == 0 ? 'channel active' : 'channel'" @click="getNoteList">推荐</div>
           <div
             :class="categoryClass == item.id ? 'channel active' : 'channel'"
             v-for="item in categoryList"
@@ -135,29 +135,29 @@ const categoryList = ref<Array<Category>>([]);
 const currentPage = ref(1);
 const pageSize = 20;
 const noteTotal = ref(0);
-const categoryClass = ref("0");
+const categoryClass = ref(0);
 const mainShow = ref(false);
-const nid = ref("");
+const nid = ref(NaN);
 const isEnd = ref(false);
 const noteDTO = ref<NoteDTO>({
   keyword: "",
   type: 0,
-  cid: "",
-  cpid: "",
+  cid: NaN,
+  cpid: NaN,
 });
 
 watch(
   () => [searchStore.seed],
   () => {
     noteDTO.value.keyword = searchStore.keyWord;
-    noteDTO.value.cpid = "";
-    categoryClass.value = "0";
+    noteDTO.value.cpid = NaN;
+    categoryClass.value = 0;
     getNoteListByKeyword();
     addRecord(searchStore.keyWord);
   }
 );
 
-const toMain = (noteId: string) => {
+const toMain = (noteId: number) => {
   // router.push({ name: "main", state: { nid: nid } });
   nid.value = noteId;
   mainShow.value = true;
@@ -191,7 +191,7 @@ const loadMoreData = () => {
     return; // 如果已经加载完所有数据，则不再请求
   }
   currentPage.value += 1;
-  if (noteDTO.value.cpid === "" && noteDTO.value.keyword == "") {
+  if (isNaN(noteDTO.value.cpid) && noteDTO.value.keyword == "") {
     getRecommendNote(currentPage.value, pageSize).then((res: any) => {
       setData(res);
     });
@@ -213,7 +213,7 @@ const setData = (res: any) => {
 };
 
 const getNoteList = async () => {
-  categoryClass.value = "0";
+  categoryClass.value = 0;
   noteList.value = [] as Array<any>;
   currentPage.value = 1;
   getRecommendNote(currentPage.value, pageSize).then((res: any) => {
@@ -221,7 +221,7 @@ const getNoteList = async () => {
   });
 };
 
-const getNoteListByCategory = (id: string) => {
+const getNoteListByCategory = (id: number) => {
   categoryClass.value = id;
   noteDTO.value.cpid = id;
   noteList.value = [] as Array<any>;

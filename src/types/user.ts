@@ -7,8 +7,8 @@ export interface UserLogin {
 }
 
 export interface User {
-  id: string;
-  yxId: string;
+  id: number;
+  yxId: number;
   username: string;
   avatar: string;
   gender: number;

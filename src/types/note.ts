@@ -1,12 +1,12 @@
 export interface NoteSearch {
-  id: string;
+  id: number;
   title: string;
   src: string;
-  uid: string;
+  uid: number;
   username: string;
   avatar: string;
-  cid: string;
-  cpid: string;
+  cid: number;
+  cpid: number;
   urls: string;
   count: number;
   type: number;
@@ -15,11 +15,11 @@ export interface NoteSearch {
 }
 
 export interface NoteInfo {
-  id: string;
+  id: number;
   title: string;
   content: string;
   noteCover: string;
-  uid: string;
+  uid: number;
   username: string;
   avatar: string;
   imgList: Array<string>;
@@ -32,12 +32,12 @@ export interface NoteInfo {
   isFollow: boolean,
   isLike: boolean,
   isCollection: boolean,
-  pinned: string
+  pinned: number
 }
 
 export interface NoteDTO {
   keyword: string;
   type: number;
-  cid: string;
-  cpid: string;
+  cid: number;
+  cpid: number;
 }

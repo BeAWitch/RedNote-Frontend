@@ -142,8 +142,8 @@ import type { LikeOrCollectionDTO } from "@/types/likeOrCollection";
 import { formateTime } from "@/utils/util";
 const props = defineProps({
   nid: {
-    type: String,
-    default: "",
+    type: Number,
+    default: NaN,
   },
   replyComment: {
     type: Object,
@@ -205,7 +205,7 @@ const addComment = () => {
   comment.likeCount = 0;
   comment.twoCommentCount = 0;
   comment.time = formateTime(new Date().getTime());
-  if (comment.pid === "0") {
+  if (comment.pid === 0) {
     dataList.value.splice(0, 0, comment);
   } else {
     if (dataList.value[oneIndex.value].children == null) {
@@ -216,7 +216,7 @@ const addComment = () => {
   computedTotal.value += 1;
 };
 
-const loadTwoMore = (oneCommentId: string, index: number) => {
+const loadTwoMore = (oneCommentId: number, index: number) => {
   let page = commentMap.get(oneCommentId);
   page += 1;
   getTwoCommentPageByOneCommentId(page, twoPageSize, oneCommentId).then((res) => {

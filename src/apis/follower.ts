@@ -4,11 +4,11 @@ import request from "@/utils/request";
  * 得到关注用户的所有动态
  * @param currentPage 当前页
  * @param pageSize 分页数
- * @returns 
+ * @returns
  */
 export const getFollowTrend = (currentPage: number, pageSize: number) => {
   return request<any>({
-    url: `/web/follower/getFollowTrend/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/follower/getFollowTrend/${currentPage}/${pageSize}`,
     method: "get",
   });
 };
@@ -16,11 +16,11 @@ export const getFollowTrend = (currentPage: number, pageSize: number) => {
 /**
  * 关注用户
  * @param followerId 关注用户id
- * @returns 
+ * @returns
  */
-export const followById = (followerId: string) => {
+export const followById = (followerId: number) => {
   return request<any>({
-    url: `/web/follower/followById`, // mock接口
+    url: `/web/follower/followById`,
     method: "get",
     params: {
       followerId,
@@ -31,11 +31,11 @@ export const followById = (followerId: string) => {
 /**
  * 当前用户是否关注
  * @param followerId 关注的用户id
- * @returns 
+ * @returns
  */
-export const isFollow = (followerId: string) => {
+export const isFollow = (followerId: number) => {
   return request<any>({
-    url: `/web/follower/isFollow`, // mock接口
+    url: `/web/follower/isFollow`,
     method: "get",
     params: {
       followerId,
@@ -51,7 +51,7 @@ export const isFollow = (followerId: string) => {
  */
 export const getNoticeFollower = (currentPage: number, pageSize: number) => {
   return request<any>({
-    url: `/web/follower/getNoticeFollower/${currentPage}/${pageSize}`, // mock接口
+    url: `/web/follower/getNoticeFollower/${currentPage}/${pageSize}`,
     method: "get",
   });
 };

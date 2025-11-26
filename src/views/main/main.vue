@@ -37,10 +37,10 @@
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item v-if="noteInfo.pinned === '0'" @click="pinned(noteInfo.id, '1')">
+                    <el-dropdown-item v-if="noteInfo.pinned === 0" @click="pinned(noteInfo.id, 1)">
                       置顶
                     </el-dropdown-item>
-                    <el-dropdown-item v-else @click="pinned(noteInfo.id, '0')">取消置顶</el-dropdown-item>
+                    <el-dropdown-item v-else @click="pinned(noteInfo.id, 0)">取消置顶</el-dropdown-item>
                     <el-dropdown-item @click="deleteNote(noteInfo.id)">删除</el-dropdown-item>
                     <el-dropdown-item @click="toEdit(noteInfo.id)">编辑</el-dropdown-item>
                   </el-dropdown-menu>
@@ -170,8 +170,8 @@ const emit = defineEmits(["clickMain"]);
 
 const props = defineProps({
   nid: {
-    type: String,
-    default: "",
+    type: Number,
+    default: NaN,
   },
   nowTime: {
     type: Date,
@@ -179,13 +179,13 @@ const props = defineProps({
   },
 });
 
-const currentUid = ref("");
+const currentUid = ref(NaN);
 const noteInfo = ref<NoteInfo>({
-  id: "",
+  id: NaN,
   title: "",
   content: "",
   noteCover: "",
-  uid: "",
+  uid: NaN,
   username: "",
   avatar: "",
   imgList: [],
@@ -198,7 +198,7 @@ const noteInfo = ref<NoteInfo>({
   isFollow: false,
   isLike: false,
   isCollection: false,
-  pinned: "0",
+  pinned: 0,
 });
 const commentValue = ref("");
 const commentPlaceVal = ref("请输入内容");
@@ -219,7 +219,7 @@ watch(
   () => [props.nowTime],
   () => {
     currentPage.value = 1;
-    if (props.nid !== null && props.nid !== "") {
+    if (props.nid !== null && !isNaN(props.nid)) {
       getNoteById(props.nid).then((res: any) => {
         console.log("---note", res.data);
         noteInfo.value = res.data;
@@ -239,7 +239,7 @@ const noLoginNotice = () => {
   return true;
 };
 
-const toUser = (uid: string) => {
+const toUser = (uid: number) => {
   const _login = noLoginNotice();
   if (!_login) {
     return;
@@ -258,7 +258,7 @@ const close = () => {
   }
 };
 
-const follow = (fid: string, type: number) => {
+const follow = (fid: number, type: number) => {
   const _login = noLoginNotice();
   if (!_login) {
     return;
@@ -289,7 +289,7 @@ const likeOrCollection = (type: number, val: number) => {
   });
 };
 
-const pinned = (noteId: string, type: string) => {
+const pinned = (noteId: number, type: number) => {
   pinnedNote(noteId)
     .then((res: any) => {
       if (res.data) {
@@ -301,8 +301,8 @@ const pinned = (noteId: string, type: string) => {
     });
 };
 
-const deleteNote = (noteId: string) => {
-  const data = [] as Array<string>;
+const deleteNote = (noteId: number) => {
+  const data = [] as Array<number>;
   data.push(noteId);
   deleteNoteByIds(data).then(() => {
     ElMessage.success("删除成功");
@@ -310,7 +310,7 @@ const deleteNote = (noteId: string) => {
   });
 };
 
-const toEdit = (noteId: string) => {
+const toEdit = (noteId: number) => {
   router.push({ path: "/push", query: { date: Date.now(), noteId: noteId } });
 };
 
@@ -322,7 +322,7 @@ const clickComment = (comment: any) => {
 const commenInput = (e: any) => {
   const { value } = e.target;
   commentValue.value = value;
-  showSaveBtn.value = commentValue.value.length > 0 || commentObject.value.pid !== undefined;
+  showSaveBtn.value = commentValue.value.length > 0 || !isNaN(commentObject.value.pid);
 };
 
 const saveComment = () => {
@@ -333,12 +333,12 @@ const saveComment = () => {
   const comment = {} as CommentDTO;
   comment.nid = props.nid;
   comment.noteUid = noteInfo.value.uid;
-  if (commentObject.value.pid === undefined) {
-    comment.pid = "0";
-    comment.replyId = "0";
+  if (isNaN(commentObject.value.pid)) {
+    comment.pid = NaN;
+    comment.replyId = NaN;
     comment.replyUid = noteInfo.value.uid;
     comment.level = 1;
-  } else if (commentObject.value.pid == "0") {
+  } else if (commentObject.value.pid == 0) {
     comment.pid = commentObject.value.id;
     comment.replyId = commentObject.value.id;
     comment.replyUid = commentObject.value.uid;
@@ -383,7 +383,7 @@ const loadMoreData = () => {
 const initData = () => {
   isLogin.value = userStore.isLogin();
   if (isLogin.value) {
-    currentUid.value = userStore.getUserInfo().id;
+    currentUid.value = userStore.getUserInfo()?.id || NaN;
   }
 };
 

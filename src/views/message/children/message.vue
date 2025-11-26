@@ -44,9 +44,9 @@ const router = useRouter();
 const imStore = useImStore();
 const dataList = ref<Array<any>>([]);
 const chatShow = ref(false);
-const acceptUid = ref("");
+const acceptUid = ref(NaN);
 
-const toUser = (uid: string) => {
+const toUser = (uid: number) => {
   router.push({ name: "user", query: { uid: uid } });
 };
 
@@ -62,7 +62,7 @@ watchEffect(() => {
   imStore.setCountMessage(_countMessage);
 });
 
-const toChat = (uid: string, index: number) => {
+const toChat = (uid: number, index: number) => {
   const _countMessage = imStore.countMessage;
   clearMessageCount(uid, 3).then(() => {
     const chatCount = dataList.value[index].count;
@@ -74,7 +74,7 @@ const toChat = (uid: string, index: number) => {
   });
 };
 
-const close = (uid: string) => {
+const close = (uid: number) => {
   const index = dataList.value.findIndex((item) => item.uid === uid);
   const _countMessage = imStore.countMessage;
   clearMessageCount(uid, 3).then(() => {

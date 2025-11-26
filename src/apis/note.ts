@@ -5,9 +5,9 @@ import request from "@/utils/request";
  * @param noteId 笔记id
  * @returns 笔记
  */
-export const getNoteById = (noteId: string) => {
+export const getNoteById = (noteId: number) => {
   return request<any>({
-    url: "/web/note/getNoteById", // mock接口
+    url: "/web/note/getNoteById",
     method: "get",
     params: {
       noteId,
@@ -22,7 +22,7 @@ export const getNoteById = (noteId: string) => {
  */
 export const saveNoteByDTO = (data: any) => {
   return request<any>({
-    url: "/web/note/saveNoteByDTO", // mock接口
+    url: "/web/note/saveNoteByDTO",
     method: "post",
     data: data,
     headers: { "Content-Type": "multipart/form-data;boundary=----WebKitFormBoundaryk4ZvuPo6pkphe7Pl" },
@@ -36,7 +36,7 @@ export const saveNoteByDTO = (data: any) => {
  */
 export const updateNoteByDTO = (data: any) => {
   return request<any>({
-    url: "/web/note/updateNoteByDTO", // mock接口
+    url: "/web/note/updateNoteByDTO",
     method: "post",
     data: data,
     headers: { "Content-Type": "multipart/form-data;boundary=----WebKitFormBoundaryk4ZvuPo6pkphe7Pl" },
@@ -45,12 +45,12 @@ export const updateNoteByDTO = (data: any) => {
 
 /**
  * 置顶笔记
- * @param noteId 
- * @returns 
+ * @param noteId
+ * @returns
  */
-export const pinnedNote = (noteId: string) => {
+export const pinnedNote = (noteId: number) => {
   return request<any>({
-    url: "/web/note/pinnedNote", // mock接口
+    url: "/web/note/pinnedNote",
     method: "get",
     params: {
       noteId,
@@ -60,12 +60,12 @@ export const pinnedNote = (noteId: string) => {
 
 /**
  * 删除笔记
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export const deleteNoteByIds = (data: any) => {
   return request<any>({
-    url: "/web/note/deleteNoteByIds", // mock接口
+    url: "/web/note/deleteNoteByIds",
     method: "post",
     data: data,
   });

@@ -1,6 +1,6 @@
 export interface Category {
-    id: string,
+    id: number,
     title: string,
-    pid: string,
+    pid: number,
     likeCount: number;
 }

@@ -1,24 +1,24 @@
 export interface CommentDTO {
-  nid: string;
-  noteUid: string;
-  pid: string;
-  replyId: string;
-  replyUid: string;
+  nid: number;
+  noteUid: number;
+  pid: number;
+  replyId: number;
+  replyUid: number;
   replyUsername: string;
   level: number;
   content: string;
 }
 
 export interface Comment {
-  id: string;
-  pid: string;
-  nid: string;
+  id: number;
+  pid: number;
+  nid: number;
   noteCover: string;
-  uid: string;
+  uid: number;
   username: string;
   avatar: string;
-  replyId: string;
-  replyUid: string;
+  replyId: number;
+  replyUid: number;
   replyUsername: string;
   content: string;
   replyContent: string;

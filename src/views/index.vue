@@ -349,6 +349,7 @@ watch(
 watch(
   () => [imStore.countMessage],
   (val) => {
+    if (!val[0]) return;
     const allCount = val[0].chatCount + val[0].likeOrCollectionCount + val[0].commentCount + val[0].followCount;
     if (allCount === 0) {
       isShowDot.value = false;
