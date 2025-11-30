@@ -195,26 +195,29 @@
 <script lang="ts" setup>
 import { ChatRound, More } from "@element-plus/icons-vue";
 import { ref } from "vue";
-import { getFollowTrend } from "@/apis/follower";
+import { getFollowTrend } from "@/apis/follow";
 import { formateTime, refreshTab } from "@/utils/util";
 import FloatingBtn from "@/components/FloatingBtn.vue";
 import Main from "@/views/main/main.vue";
-import type { LikeOrCollectionDTO } from "@/types/likeOrCollection";
-import { likeOrCollectionByDTO } from "@/apis/likeOrCollection";
+import type { LikeOrFavoriteDTO } from "@/types/likeOrFavorite";
+import { likeOrFavoriteByDTO } from "@/apis/likeOrFavorite";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
+import { off } from "process";
+import { tr } from "element-plus/es/locales.mjs";
 
 const router = useRouter();
 const userStore = useUserStore();
-const currentPage = ref(1);
 const pageSize = ref(5);
+const offset = ref(0);
+const lastTime = ref(Date.now());
 const trendData = ref<Array<any>>([]);
 const trendTotal = ref(0);
 const topLoading = ref(false);
 const mainShow = ref(false);
 const nid = ref(NaN);
-const likeOrCollectionDTO = ref<LikeOrCollectionDTO>({
-  likeOrCollectionId: NaN,
+const likeOrFavoriteDTO = ref<LikeOrFavoriteDTO>({
+  likeOrFavoriteId: NaN,
   publishUid: NaN,
   type: 0,
 });
@@ -230,18 +233,19 @@ const toUser = (uid: number) => {
 };
 
 const getFollowTrends = () => {
-  getFollowTrend(currentPage.value, pageSize.value).then((res: any) => {
-    const { records, total } = res.data;
-    records.forEach((item: any) => {
-      item.time = formateTime(item.time);
-      trendData.value.push(item);
+  getFollowTrend(lastTime.value, offset.value, pageSize.value).then((res: any) => {
+    const trendList = res.data.list;
+    trendList.forEach((trend: any) => {
+      trend.time = formateTime(trend.time);
+      trendData.value.push(trend);
     });
-    trendTotal.value = total;
+    trendTotal.value = trendList.length;
+    offset.value = res.data.offset;
+    lastTime.value = res.data.lastTime;
   });
 };
 
 const loadMoreData = () => {
-  currentPage.value += 1;
   getFollowTrends();
 };
 
@@ -268,7 +272,8 @@ const refresh = () => {
   refreshTab(() => {
     topLoading.value = true;
     setTimeout(() => {
-      currentPage.value = 1;
+      offset.value = 0;
+      lastTime.value = Date.now();
       trendData.value = [];
       getFollowTrends();
       topLoading.value = false;
@@ -277,10 +282,10 @@ const refresh = () => {
 };
 
 const like = (nid: number, uid: number, index: number, val: number) => {
-  likeOrCollectionDTO.value.likeOrCollectionId = nid;
-  likeOrCollectionDTO.value.publishUid = uid;
-  likeOrCollectionDTO.value.type = 1;
-  likeOrCollectionByDTO(likeOrCollectionDTO.value).then(() => {
+  likeOrFavoriteDTO.value.likeOrFavoriteId = nid;
+  likeOrFavoriteDTO.value.publishUid = uid;
+  likeOrFavoriteDTO.value.type = 1;
+  likeOrFavoriteByDTO(likeOrFavoriteDTO.value).then(() => {
     if (val < 0 && trendData.value[index].likeCount == 0) {
       return;
     }

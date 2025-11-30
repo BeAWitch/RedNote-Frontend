@@ -137,8 +137,8 @@
 import { ChatRound } from "@element-plus/icons-vue";
 import { ref, watch } from "vue";
 import { getCommentWithCommentByNoteId, getTwoCommentPageByOneCommentId } from "@/apis/comment";
-import { likeOrCollectionByDTO } from "@/apis/likeOrCollection";
-import type { LikeOrCollectionDTO } from "@/types/likeOrCollection";
+import { likeOrFavoriteByDTO } from "@/apis/likeOrFavorite";
+import type { LikeOrFavoriteDTO } from "@/types/likeOrFavorite";
 import { formateTime } from "@/utils/util";
 const props = defineProps({
   nid: {
@@ -176,11 +176,11 @@ const commentMap = new Map();
 const commentTotalMap = new Map();
 
 const likeComment = (comment: any, status: number, one: number, two: number) => {
-  const data = {} as LikeOrCollectionDTO;
-  data.likeOrCollectionId = comment.id;
+  const data = {} as LikeOrFavoriteDTO;
+  data.likeOrFavoriteId = comment.id;
   data.publishUid = comment.uid;
   data.type = 2;
-  likeOrCollectionByDTO(data).then(() => {
+  likeOrFavoriteByDTO(data).then(() => {
     if (two === -1) {
       dataList.value[one].isLike = status == 1;
       dataList.value[one].likeCount += status;

@@ -16,7 +16,7 @@ export interface User {
   birthday: string;
   address: string;
   userCover: string;
-  trendCount: number;
+  noteCount: number;
+  followCount: number;
   followerCount: number;
-  fanCount: number;
 }

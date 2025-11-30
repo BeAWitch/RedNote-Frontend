@@ -19,9 +19,9 @@
               </div>
             </el-badge>
             <el-badge
-              :value="_countMessage.likeOrCollectionCount"
+              :value="_countMessage.likeOrFavoriteCount"
               :max="99"
-              :hidden="_countMessage.likeOrCollectionCount == 0"
+              :hidden="_countMessage.likeOrFavoriteCount == 0"
             >
               <div :class="type === 0 ? 'reds-tab-item active tab-item' : 'reds-tab-item tab-item'">
                 <div class="badge-container" @click="toPage(0)">
@@ -42,8 +42,8 @@
       </div>
       <Message v-if="type == 3"></Message>
       <Comment v-if="type == 1" @click-main="toMain"></Comment>
-      <LikeCollection v-if="type == 0" @click-main="toMain"></LikeCollection>
-      <Follower v-if="type == 2"></Follower>
+      <LikeFavorite v-if="type == 0" @click-main="toMain"></LikeFavorite>
+      <Follow v-if="type == 2"></Follow>
       <!-- <router-view /> -->
 
       <Main
@@ -69,7 +69,7 @@
 import { Top } from "@element-plus/icons-vue";
 import { ref, watchEffect } from "vue";
 import Message from "@/views/message/children/message.vue";
-import LikeCollection from "@/views/message/children/like-collection.vue";
+import LikeFavorite from "@/views/message/children/like-favorite.vue";
 import Follower from "@/views/message/children/follower.vue";
 import Comment from "@/views/message/children/comment.vue";
 import Main from "@/views/main/main.vue";
@@ -85,7 +85,7 @@ const currentUid = ref(NaN);
 const mainShow = ref(false);
 const _countMessage = ref({
   chatCount: 0,
-  likeOrCollectionCount: 0,
+  likeOrFavoriteCount: 0,
   commentCount: 0,
   followCount: 0,
 });
@@ -100,7 +100,7 @@ const toPage = (val: number) => {
   clearMessageCount(currentUid.value, val).then(() => {
     switch (val) {
       case 0:
-        _countMessage.likeOrCollectionCount = 0;
+        _countMessage.likeOrFavoriteCount = 0;
         break;
       case 1:
         _countMessage.commentCount = 0;

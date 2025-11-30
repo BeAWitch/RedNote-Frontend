@@ -80,16 +80,16 @@
             <div class="buttons">
               <div class="left">
                 <span class="like-wrapper"
-                  ><span class="like-lottie" v-if="noteInfo.isCollection" @click="likeOrCollection(3, -1)">
+                  ><span class="like-lottie" v-if="noteInfo.isFavorite" @click="likeOrFavorite(3, -1)">
                     <StarFilled style="width: 0.9em; height: 0.9em; color: #ffcc00" />
                   </span>
-                  <span class="like-lottie" v-else @click="likeOrCollection(3, 1)">
+                  <span class="like-lottie" v-else @click="likeOrFavorite(3, 1)">
                     <Star style="width: 0.8em; height: 0.8em; color: #333" />
                   </span>
-                  <span class="count">{{ noteInfo.collectionCount }}</span>
+                  <span class="count">{{ noteInfo.favoriteCount }}</span>
                 </span>
-                <span class="collect-wrapper">
-                  <span class="like-lottie" v-if="noteInfo.isLike" @click="likeOrCollection(1, -1)">
+                <span class="favorite-wrapper">
+                  <span class="like-lottie" v-if="noteInfo.isLike" @click="likeOrFavorite(1, -1)">
                     <i
                       class="iconfont icon-follow-fill"
                       :style="{ width: '1em', height: '1em', color: noteInfo.isLike ? 'red' : 'black' }"
@@ -98,7 +98,7 @@
                     </i>
                     <i class="iconfont icon-follow" style="width: 1em; height: 1em" v-else></i>
                   </span>
-                  <span class="like-lottie" v-else @click="likeOrCollection(1, 1)">
+                  <span class="like-lottie" v-else @click="likeOrFavorite(1, 1)">
                     <i class="iconfont icon-follow" style="width: 0.8em; height: 0.8em; color: #333"></i>
                   </span>
                   <span class="count">{{ noteInfo.likeCount }}</span>
@@ -150,11 +150,11 @@ import { Close, Star, ChatRound, StarFilled, ArrowDown } from "@element-plus/ico
 import { ElMessage } from "element-plus";
 import { ref, watch } from "vue";
 import { getNoteById, pinnedNote, deleteNoteByIds } from "@/apis/note";
-import { likeOrCollectionByDTO } from "@/apis/likeOrCollection";
+import { likeOrFavoriteByDTO } from "@/apis/likeOrFavorite";
 import type { NoteInfo } from "@/types/note";
-import type { LikeOrCollectionDTO } from "@/types/likeOrCollection";
+import type { LikeOrFavoriteDTO } from "@/types/likeOrFavorite";
 import { formateTime, getFileFromUrl, getRandomString, getFullFileUrl } from "@/utils/util";
-import { followById } from "@/apis/follower";
+import { followById } from "@/apis/follow";
 import Comment from "@/components/Comment.vue";
 import type { CommentDTO } from "@/types/comment";
 import { saveCommentByDTO, syncCommentByIds } from "@/apis/comment";
@@ -191,13 +191,13 @@ const noteInfo = ref<NoteInfo>({
   imgList: [],
   type: -1,
   likeCount: 0,
-  collectionCount: 0,
+  favoriteCount: 0,
   commentCount: 0,
   tagList: [],
   time: "",
   isFollow: false,
   isLike: false,
-  isCollection: false,
+  isFavorite: false,
   pinned: 0,
 });
 const commentValue = ref("");
@@ -268,23 +268,23 @@ const follow = (fid: number, type: number) => {
   });
 };
 
-const likeOrCollection = (type: number, val: number) => {
+const likeOrFavorite = (type: number, val: number) => {
   const _login = noLoginNotice();
   if (!_login) {
     return;
   }
-  const likeOrCollectionDTO = {} as LikeOrCollectionDTO;
-  likeOrCollectionDTO.likeOrCollectionId = noteInfo.value.id;
-  likeOrCollectionDTO.publishUid = noteInfo.value.uid;
-  likeOrCollectionDTO.type = type == 1 ? 1 : 3;
-  likeOrCollectionByDTO(likeOrCollectionDTO).then(() => {
+  const likeOrFavoriteDTO = {} as LikeOrFavoriteDTO;
+  likeOrFavoriteDTO.likeOrFavoriteId = noteInfo.value.id;
+  likeOrFavoriteDTO.publishUid = noteInfo.value.uid;
+  likeOrFavoriteDTO.type = type == 1 ? 1 : 3;
+  likeOrFavoriteByDTO(likeOrFavoriteDTO).then(() => {
     if (type == 1) {
       noteInfo.value.isLike = val == 1;
       noteInfo.value.likeCount += val;
       likeOrComment.value.isLike = val == 1;
     } else {
-      noteInfo.value.isCollection = val == 1;
-      noteInfo.value.collectionCount += val;
+      noteInfo.value.isFavorite = val == 1;
+      noteInfo.value.favoriteCount += val;
     }
   });
 };
@@ -640,7 +640,7 @@ initData();
               }
             }
 
-            .collect-wrapper {
+            .favorite-wrapper {
               position: relative;
               cursor: pointer;
               display: flex;

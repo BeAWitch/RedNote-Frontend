@@ -142,9 +142,9 @@
                 <a class>{{ item.username }}</a>
               </div>
               <div class="interaction-hint">
-                <span>粉丝:</span><span>{{ item.fanCount }}</span
-                >&nbsp;|&nbsp;<span>关注:&nbsp;</span><span>{{ item.followerCount }}</span
-                >&nbsp;|&nbsp;<span>作品:&nbsp;</span><span>{{ item.trendCount }}</span>
+                <span>粉丝:</span><span>{{ item.followerCount }}</span
+                >&nbsp;|&nbsp;<span>关注:&nbsp;</span><span>{{ item.followCount }}</span
+                >&nbsp;|&nbsp;<span>作品:&nbsp;</span><span>{{ item.noteCount }}</span>
               </div>
             </div>
             <div class="extra">
@@ -184,7 +184,7 @@ import Loading from "@/components/Loading.vue";
 import { refreshTab } from "@/utils/util";
 import { useRoute, useRouter } from "vue-router";
 import { getUserByKeyword } from "@/apis/user";
-import { followById } from "@/apis/follower";
+import { followById } from "@/apis/follow";
 
 const route = useRoute();
 const router = useRouter();

@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { getNoticeLikeOrCollection } from "@/apis/likeOrCollection";
+import { getLikeAndFavoriteInfo } from "@/apis/likeOrFavorite";
 import { formateTime } from "@/utils/util";
 import { useRouter } from "vue-router";
 
@@ -56,7 +56,7 @@ const toUser = (uid: string) => {
 };
 
 const getPageData = () => {
-  getNoticeLikeOrCollection(currentPage.value, pageSize).then((res) => {
+  getLikeAndFavoriteInfo(currentPage.value, pageSize).then((res) => {
     const { records, total } = res.data;
     dataTotal.value = total;
     records.forEach((item: any) => {

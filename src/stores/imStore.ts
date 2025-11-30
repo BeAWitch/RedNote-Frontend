@@ -10,7 +10,7 @@ export const imStore = defineStore("imStore", () => {
 
   const countMessage = ref({
     chatCount: 0,
-    likeOrCollectionCount: 0,
+    likeOrFavoriteCount: 0,
     commentCount: 0,
     followCount: 0,
   });

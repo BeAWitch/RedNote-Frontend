@@ -109,15 +109,15 @@
             <div class="data-info">
               <div class="user-interactions">
                 <div>
-                  <span class="count">{{ userInfo.trendCount }}</span
+                  <span class="count">{{ userInfo.noteCount }}</span
                   ><span class="shows">作品</span>
                 </div>
                 <div>
-                  <span class="count">{{ userInfo.followerCount }}</span
+                  <span class="count">{{ userInfo.followCount }}</span
                   ><span class="shows">关注</span>
                 </div>
                 <div>
-                  <span class="count">{{ userInfo.fanCount }}</span
+                  <span class="count">{{ userInfo.followerCount }}</span
                   ><span class="shows">粉丝</span>
                 </div>
               </div>
@@ -177,7 +177,7 @@ import { getUserById, updateUser } from "@/apis/user";
 import Note from "@/components/Note.vue";
 import { useUserStore } from "@/stores/userStore";
 import Chat from "@/components/Chat.vue";
-import { followById, isFollow } from "@/apis/follower";
+import { followById, isFollow } from "@/apis/follow";
 import { useRoute } from "vue-router";
 import { ElInput, ElMessage, UploadProps } from "element-plus";
 import { baseURL } from "@/constants/constant";

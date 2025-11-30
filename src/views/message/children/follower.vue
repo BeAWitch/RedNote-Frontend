@@ -37,9 +37,9 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { getNoticeFollower } from "@/apis/follower";
+import { getFollowInfo } from "@/apis/follow";
 import { formateTime } from "@/utils/util";
-import { followById } from "@/apis/follower";
+import { followById } from "@/apis/follow";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -49,7 +49,7 @@ const dataList = ref<Array<any>>([]);
 const dataTotal = ref(0);
 
 const getPageData = () => {
-  getNoticeFollower(currentPage.value, pageSize).then((res) => {
+  getFollowInfo(currentPage.value, pageSize).then((res) => {
     const { records, total } = res.data;
     dataTotal.value = total;
     records.forEach((item: any) => {

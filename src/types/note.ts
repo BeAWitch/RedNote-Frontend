@@ -25,13 +25,13 @@ export interface NoteInfo {
   imgList: Array<string>;
   type: number;
   likeCount: number;
-  collectionCount: number;
+  favoriteCount: number;
   commentCount: number;
   tagList: Array<any>;
   time: string;
   isFollow: boolean,
   isLike: boolean,
-  isCollection: boolean,
+  isFavorite: boolean,
   pinned: number
 }
 

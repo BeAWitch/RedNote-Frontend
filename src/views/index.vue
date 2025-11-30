@@ -117,7 +117,7 @@
             </div>
             <div data-v-6432121e="" class="line-container">
               <svg data-v-23d27ada="" data-v-6432121e="" class="reds-icon icon" width="16" height="16">
-                <use data-v-23d27ada="" xlink:href="#collect"></use>
+                <use data-v-23d27ada="" xlink:href="#favorite"></use>
               </svg>
               <span data-v-6432121e="" class="desc">查看收藏、点赞的笔记</span>
             </div>
@@ -144,7 +144,7 @@
               d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"
             />
           </symbol>
-          <symbol id="collect" viewBox="0 0 24 24">
+          <symbol id="favorite" viewBox="0 0 24 24">
             <!-- SVG 路径数据 -->
             <path
               d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
@@ -350,7 +350,7 @@ watch(
   () => [imStore.countMessage],
   (val) => {
     if (!val[0]) return;
-    const allCount = val[0].chatCount + val[0].likeOrCollectionCount + val[0].commentCount + val[0].followCount;
+    const allCount = val[0].chatCount + val[0].likeOrFavoriteCount + val[0].commentCount + val[0].followCount;
     if (allCount === 0) {
       isShowDot.value = false;
     }
@@ -364,7 +364,7 @@ const messageCount = computed({
   get: () => {
     return (
       imStore.countMessage.chatCount +
-      imStore.countMessage.likeOrCollectionCount +
+      imStore.countMessage.likeOrFavoriteCount +
       imStore.countMessage.commentCount +
       imStore.countMessage.followCount
     );
@@ -462,7 +462,7 @@ const connectWs = (uid: string) => {
     if (message.msgType === 0) {
       const content = message.content;
       const _countMessage = imStore.countMessage;
-      _countMessage.likeOrCollectionCount = content.likeOrCollectionCount;
+      _countMessage.likeOrFavoriteCount = content.likeOrFavoriteCount;
       _countMessage.commentCount = content.commentCount;
       _countMessage.followCount = content.followCount;
       imStore.setCountMessage(_countMessage);
@@ -530,7 +530,7 @@ const getWsMessage = async () => {
   // TODO: 需要修复显示数量bug
   const _countMessage = {} as any;
   _countMessage.chatCount = p;
-  _countMessage.likeOrCollectionCount = q.likeOrCollectionCount;
+  _countMessage.likeOrFavoriteCount = q.likeOrFavoriteCount;
   _countMessage.commentCount = q.commentCount;
   _countMessage.followCount = q.followCount;
 
