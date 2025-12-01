@@ -149,7 +149,7 @@ const toMain = (noteId: number) => {
 };
 
 const setData = (res: any) => {
-  const { records, total } = res.data;
+  const { records, total } = res.data || {records: [], total: 0};
   noteTotal.value = total;
   // 过滤掉不是当前用户且状态“审核中”或“未通过”的记录
   const filteredRecords = records.filter((item: any) => {

@@ -24,8 +24,7 @@ export const saveNoteByDTO = (data: any) => {
   return request<any>({
     url: "/web/note/saveNoteByDTO",
     method: "post",
-    data: data,
-    headers: { "Content-Type": "multipart/form-data;boundary=----WebKitFormBoundaryk4ZvuPo6pkphe7Pl" },
+    data: data
   });
 };
 
@@ -39,7 +38,6 @@ export const updateNoteByDTO = (data: any) => {
     url: "/web/note/updateNoteByDTO",
     method: "post",
     data: data,
-    headers: { "Content-Type": "multipart/form-data;boundary=----WebKitFormBoundaryk4ZvuPo6pkphe7Pl" },
   });
 };
 

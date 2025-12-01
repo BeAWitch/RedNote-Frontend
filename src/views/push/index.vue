@@ -5,11 +5,9 @@
       <div class="img-list">
         <el-upload
           v-model:file-list="fileList"
-          action="http://localhost:88/api/util/oss/saveBatch/0"
           list-type="picture-card"
           multiple
           :limit="9"
-          :headers="uploadHeader"
           :auto-upload="false"
         >
           <el-icon>
@@ -159,9 +157,6 @@ const fileList = ref<UploadUserFile[]>([]);
 
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);
-const uploadHeader = ref({
-  accessToken: userStore.getToken(),
-});
 const categoryList = ref<Array<any>>([]);
 const options = ref([]);
 const note = ref<any>({});
@@ -274,7 +269,7 @@ const getNoteByIdMethod = (noteId: number) => {
   });
 };
 
-// 上传图片功能
+// 上传笔记功能
 const pubslish = () => {
   // 验证
   if (fileList.value.length <= 0 || note.value.title === null || categoryList.value.length <= 0) {

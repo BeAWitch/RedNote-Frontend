@@ -16,41 +16,6 @@ export const login = (data: any) => {
 
 /**
  *
- * @param deptId
- * @param file
- * @returns
- */
-export function importFile(deptId: number, file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-  return request({
-    url: "/api/v1/users/_import",
-    method: "post",
-    params: { deptId: deptId },
-    data: formData,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-}
-
-/**
- *
- * @param accessToken
- * @returns
- */
-export const getUserInfoByToken = (accessToken: string) => {
-  return request<any>({
-    url: "/web/auth/getUserInfoByToken",
-    method: "get",
-    params: {
-      accessToken,
-    },
-  });
-};
-
-/**
- *
  * @param data
  * @returns
  */
@@ -112,7 +77,7 @@ export const updateUser = (data: any) => {
   return request<any>({
     url: "/web/user/updateUser",
     method: "post",
-    data,
+    data: data,
   });
 };
 

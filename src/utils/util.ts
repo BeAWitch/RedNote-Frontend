@@ -80,8 +80,6 @@ export const getRandomString = (len: number) => {
   return _str;
 }
 
-
-
 export const getFileFromUrl = async (url: string, fileName: string) => {
   try {
     // 第一步：使用axios获取网络图片数据

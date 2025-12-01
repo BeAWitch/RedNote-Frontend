@@ -234,6 +234,9 @@ const toUser = (uid: number) => {
 
 const getFollowTrends = () => {
   getFollowTrend(lastTime.value, offset.value, pageSize.value).then((res: any) => {
+    if (res.data === undefined) {
+      return;
+    }
     const trendList = res.data.list;
     trendList.forEach((trend: any) => {
       trend.time = formateTime(trend.time);

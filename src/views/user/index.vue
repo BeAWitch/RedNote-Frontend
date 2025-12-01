@@ -4,19 +4,13 @@
       <div class="user-info">
         <div class="avatar">
           <div class="avatar-wrapper">
-            <img :src="userInfo.avatar" class="user-image" style="border: 0.0625rem solid rgba(0, 0, 0, 0.08)" />
-            <div class="img-edit">
-              <el-upload
-                v-show="uid === currentUid"
-                class="upload-demo"
-                :action="fileAction"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess"
-                :headers="uploadHeader"
-              >
-                <button class="btn-avatr">更换</button>
-              </el-upload>
-            </div>
+            <img
+              v-show="!_isEditInfo"
+              :src="userInfo.avatar"
+              class="user-image"
+              style="border: 0.0625rem solid rgba(0, 0, 0, 0.08)"
+            />
+            <AvatarUploader v-show="uid === currentUid && _isEditInfo" ref="avatarRef" />
           </div>
         </div>
         <div class="info-part">
@@ -24,48 +18,50 @@
             <div class="basic-info">
               <div class="user-basic">
                 <div class="user-nickname">
-                  <div class="user-name" v-if="uid === currentUid">
-                    <span v-if="!_isEditInfo"> {{ userInfo.username }}</span>
+                  <div
+                    class="user-name"
+                    v-if="uid === currentUid"
+                    style="display: flex; align-items: center"
+                  >
+                    <span v-if="!_isEditInfo" style="flex-shrink: 0">{{ userInfo.username }}</span>
                     <el-input
                       v-else
                       v-model="userInfo.username"
-                      style="width: 15rem"
+                      style="width: 15rem; flex-shrink: 0"
                       maxlength="10"
-                      placeholder="Please input"
+                      placeholder="请输入昵称"
                       show-word-limit
-                      @keyup.enter="confirmUserInfo"
                       type="text"
                     />
                     <el-button
                       :icon="Edit"
                       v-show="!_isEditInfo"
-                      @click="_isEditInfo = true"
+                      @click="enterEdit"
                       circle
                       size="small"
-                      style="margin-left: 0.3125rem"
+                      style="margin-left: 0.3125rem; flex-shrink: 0"
                     />
                   </div>
                   <div class="user-name" v-else>
                     {{ userInfo.username }}
                   </div>
                 </div>
-                <div class="user-content">
-                  <span class="user-redId">小红书号：{{ userInfo.hsId }}</span
-                  ><span class="user-IP"> IP属地：{{ userInfo.address }}</span>
+                <div class="user-content" v-show="!_isEditInfo">
+                  <span class="user-redId">小红书号：{{ userInfo.hsId }}</span>
+                  <span class="user-IP"> IP属地：{{ userInfo.address }}</span>
                 </div>
               </div>
             </div>
             <div class="user-desc">
               <div v-if="!_isEditInfo">
-                <span v-if="userInfo.description === null">这个人什么都没有写～</span>
+                <span v-if="userInfo.description === undefined">这个人什么都没有写～</span>
                 <span v-else>{{ userInfo.description }}</span>
               </div>
               <el-input
                 v-else
                 v-model="userInfo.description"
                 maxlength="250"
-                placeholder="Please input"
-                @keyup.enter="confirmUserInfo"
+                placeholder="请输入个人简介"
                 show-word-limit
                 :autosize="true"
                 type="textarea"
@@ -76,7 +72,7 @@
                 style="margin-left: 0.3125rem"
                 v-for="tag in tagList"
                 :key="tag"
-                :closable="uid === currentUid"
+                :closable="_isEditInfo && uid === currentUid"
                 :disable-transitions="false"
                 @close="handleClose(tag)"
                 effect="light"
@@ -101,10 +97,18 @@
                 size="small"
                 @click="showInput"
                 round
-                v-show="uid === currentUid"
+                v-show="_isEditInfo && uid === currentUid"
               >
-                +
+                <span class="btn-content" @click="">点我添加标签</span>
               </el-button>
+            </div>
+            <div class="submit" v-if="_isEditInfo && uid === currentUid">
+              <button class="publishBtn" @click="submit">
+                <span class="btn-content">确认</span>
+              </button>
+              <button class="clearBtn">
+                <span class="btn-content" @click="exitEdit">取消</span>
+              </button>
             </div>
             <div class="data-info">
               <div class="user-interactions">
@@ -132,7 +136,10 @@
         </div>
       </div>
     </div>
-    <div class="reds-sticky-box user-page-sticky" style="--1ee3a37c: all 0.4s cubic-bezier(0.2, 0, 0.25, 1) 0s">
+    <div
+      class="reds-sticky-box user-page-sticky"
+      style="--1ee3a37c: all 0.4s cubic-bezier(0.2, 0, 0.25, 1) 0s"
+    >
       <div class="reds-sticky" style="">
         <div class="tertiary center reds-tabs-list" style="padding: 0rem 0.75rem">
           <div
@@ -179,14 +186,13 @@ import { useUserStore } from "@/stores/userStore";
 import Chat from "@/components/Chat.vue";
 import { followById, isFollow } from "@/apis/follow";
 import { useRoute } from "vue-router";
-import { ElInput, ElMessage, UploadProps } from "element-plus";
-import { baseURL } from "@/constants/constant";
+import { ElInput, ElMessage } from "element-plus";
+import AvatarUploader from "@/components/AvatarUploader.vue";
+import { get } from "node_modules/axios/index.d.cts";
 
 const route = useRoute();
 const userStore = useUserStore();
-const uploadHeader = ref({
-  accessToken: userStore.getToken(),
-});
+const avatarRef = ref(null);
 const currentUid = userStore.getUserInfo()?.id || NaN;
 const userInfo = ref<any>({});
 //const uid = history.state.uid;
@@ -196,10 +202,12 @@ const chatShow = ref(false);
 const _isFollow = ref(false);
 const _isEditInfo = ref(false);
 const tagList = ref<string[]>([]);
+const tagListBackup = ref<string[]>([]);
+const userDescriptionBackup = ref("");
+const usernameBackup = ref("");
 const inputVisible = ref(false);
 const InputRef = ref<InstanceType<typeof ElInput>>();
 const inputTagValue = ref("");
-const fileAction = baseURL + "web/oss/save/1";
 
 const showInput = () => {
   inputVisible.value = true;
@@ -210,13 +218,11 @@ const showInput = () => {
 
 const handleClose = (tag: string) => {
   tagList.value.splice(tagList.value.indexOf(tag), 1);
-  commonUpdateUser();
 };
 
 const handleInputConfirm = () => {
   if (inputTagValue.value) {
     tagList.value.push(inputTagValue.value);
-    commonUpdateUser();
   }
   // _isClosable.value = false;
   inputVisible.value = false;
@@ -224,12 +230,18 @@ const handleInputConfirm = () => {
 };
 
 const commonUpdateUser = () => {
+  // 验证昵称
+  if (userInfo.value.username.trim() === "") {
+    ElMessage.error("昵称不能为空!");
+    return;
+  }
   // 检查标签数量并处理
   if (tagList.value.length > 4) {
     tagList.value.splice(4);
     ElMessage.warning("最多支持4个标签!");
     return;
   }
+
   // 创建用户DTO对象并赋值
   let userDTO = {
     id: userInfo.value.id,
@@ -238,31 +250,51 @@ const commonUpdateUser = () => {
     description: userInfo.value.description,
     tags: JSON.stringify(tagList.value),
   };
-  updateUser(userDTO)
+
+  // 头像
+  const file = avatarRef.value?.avatarFile;
+
+  const formData = new FormData();
+  if (file) {
+    formData.append("avatar", file);
+  }
+  formData.append("userDTO", JSON.stringify(userDTO));
+
+  updateUser(formData)
     .then(() => {
       // 更新用户存储信息
       ElMessage.success("修改成功～");
-      const user = userStore.getUserInfo();
-      user.avatar = userInfo.value.avatar;
-      userStore.setUserInfo(user);
+      getUserById(uid).then((res) => {
+        userInfo.value = res.data;
+        userStore.setUserInfo(res.data);
+      });
     })
     .catch(() => {
       ElMessage.error("更新失败，请稍后再试!");
     });
 };
 
-const confirmUserInfo = () => {
+const submit = () => {
   _isEditInfo.value = false;
   commonUpdateUser();
 };
 
-const toPage = (val: number) => {
-  type.value = val;
+const exitEdit = () => {
+  _isEditInfo.value = false;
+  tagList.value = tagListBackup.value;
+  userInfo.value.description = userDescriptionBackup.value;
+  userInfo.value.username = usernameBackup.value;
 };
 
-const handleAvatarSuccess: UploadProps["onSuccess"] = (response) => {
-  userInfo.value.avatar = response.data;
-  commonUpdateUser();
+const enterEdit = () => {
+  _isEditInfo.value = true;
+  tagListBackup.value = tagList.value;
+  userDescriptionBackup.value = userInfo.value.description;
+  usernameBackup.value = userInfo.value.username;
+};
+
+const toPage = (val: number) => {
+  type.value = val;
 };
 
 const follow = (fid: number, type: number) => {
@@ -335,6 +367,7 @@ initData();
             color: #1f1e1e;
             border-radius: 0.5rem;
           }
+
           .btn-avatr:hover {
             background-color: #f4f4f4;
             color: #000;
@@ -428,9 +461,12 @@ initData();
               margin-right: 0.375rem;
               color: rgba(51, 51, 51, 0.6);
             }
+
             :hover {
-              cursor: pointer; /* 显示小手指针 */
-              transform: scale(1.15); /* 鼠标移入时按钮稍微放大 */
+              cursor: pointer;
+              /* 显示小手指针 */
+              transform: scale(1.15);
+              /* 鼠标移入时按钮稍微放大 */
             }
           }
 
@@ -486,6 +522,7 @@ initData();
         align-items: center;
         justify-content: space-between;
       }
+
       .tool-btn {
         @media screen and (min-width: 108rem) {
           display: none;
@@ -536,9 +573,12 @@ initData();
         transition: transform 0.3s cubic-bezier(0.2, 0, 0.25, 1);
         z-index: 1;
       }
+
       :hover {
-        cursor: pointer; /* 显示小手指针 */
-        transform: scale(1.15); /* 鼠标移入时按钮稍微放大 */
+        cursor: pointer;
+        /* 显示小手指针 */
+        transform: scale(1.15);
+        /* 鼠标移入时按钮稍微放大 */
       }
 
       .reds-tab-item.active {
@@ -552,6 +592,41 @@ initData();
 
   .feeds-tab-container {
     padding-left: 2rem;
+  }
+
+  .submit {
+    padding: 10px 12px 10px 12px;
+    margin-top: 10px;
+
+    button {
+      width: 100px;
+      height: 36px;
+      font-size: 15px;
+      display: inline-block;
+      margin-left: 250px;
+      margin-bottom: 2px;
+      cursor: pointer;
+      /* 显示小手指针 */
+      transition: background-color 0.3s, color 0.3s;
+      /* 添加过渡效果 */
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      /* 鼠标移入时按钮稍微放大 */
+    }
+
+    .publishBtn {
+      background-color: #ff2442;
+      color: #fff;
+      border-radius: 24px;
+    }
+
+    .clearBtn {
+      border-radius: 24px;
+      margin-left: 10px;
+      border: 1px solid rgb(217, 217, 217);
+    }
   }
 }
 </style>
