@@ -92,7 +92,7 @@
 // import { ChatRound, Star } from "@element-plus/icons-vue";
 import { ref } from "vue";
 import { formateTime } from "@/utils/util";
-import { getNoticeComment } from "@/apis/comment";
+import { getCommentInfo } from "@/apis/comment";
 import { useUserStore } from "@/stores/userStore";
 import { useRouter } from "vue-router";
 
@@ -120,7 +120,7 @@ const toUser = (uid: string) => {
 };
 
 const getPageData = () => {
-  getNoticeComment(currentPage.value, pageSize).then((res) => {
+  getCommentInfo(currentPage.value, pageSize).then((res) => {
     const { records, total } = res.data;
     dataTotal.value = total;
     records.forEach((item: any) => {

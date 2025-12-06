@@ -1,50 +1,62 @@
 <template>
   <div class="comments-container">
-    <div class="total">共{{ computedTotal }}条评论</div>
+    <div class="total">共{{ props.commentCount }}条评论</div>
     <div class="list-container">
-      <div class="parent-comment" v-for="(oneComment, oneIndex) in dataList" :key="oneIndex">
+      <div
+        class="parent-comment"
+        v-for="(levelOneComment, levelOneIndex) in dataList"
+        :key="levelOneIndex"
+      >
         <div class="comment-item">
           <div class="comment-inner-container">
             <div class="avatar">
-              <img class="avatar-item" :src="oneComment.avatar" />
+              <img class="avatar-item" :src="levelOneComment.avatar" />
             </div>
             <div class="right">
               <div class="author-wrapper">
                 <div class="author">
-                  <a class="name">{{ oneComment.username }}</a>
+                  <a class="name">{{ levelOneComment.username }}</a>
                 </div>
               </div>
-              <div class="content">{{ oneComment.content }}</div>
+              <div class="content">{{ levelOneComment.content }}</div>
 
               <div class="info">
                 <div class="date">
-                  <span>{{ oneComment.time }}</span>
+                  <span>{{ levelOneComment.time }}</span>
                 </div>
                 <div class="interactions">
                   <div class="like">
                     <span
                       class="like-wrapper"
-                      v-if="oneComment.isLike"
-                      @click="likeComment(oneComment, -1, oneIndex, -1)"
+                      v-if="levelOneComment.isLike"
+                      @click="likeComment(levelOneComment, -1, levelOneIndex, -1)"
                     >
                       <i
                         class="iconfont icon-follow-fill"
-                        :style="{ width: '1em', height: '1em', color: oneComment.isLike ? 'red' : 'black' }"
-                        v-if="oneComment.isLike"
+                        :style="{
+                          width: '1em',
+                          height: '1em',
+                          color: levelOneComment.isLike ? 'red' : 'black',
+                        }"
+                        v-if="levelOneComment.isLike"
                       >
                       </i>
                       <i class="iconfont icon-follow" style="width: 1em; height: 1em" v-else></i>
-                      <span class="count">{{ oneComment.likeCount }}</span>
+                      <span class="count">{{ levelOneComment.likeCount }}</span>
                     </span>
-                    <span class="like-wrapper" v-else @click="likeComment(oneComment, 1, oneIndex, -1)">
+                    <span
+                      class="like-wrapper"
+                      v-else
+                      @click="likeComment(levelOneComment, 1, levelOneIndex, -1)"
+                    >
                       <i class="iconfont icon-follow" style="width: 1em; height: 1em"></i>
-                      <span class="count">{{ oneComment.likeCount }}</span>
+                      <span class="count">{{ levelOneComment.likeCount }}</span>
                     </span>
                   </div>
-                  <div class="reply" @click="saveComment(oneComment, oneIndex, 0)">
+                  <div class="reply" @click="saveComment(levelOneComment, levelOneIndex, 0)">
                     <span class="like-wrapper">
                       <ChatRound style="width: 1.2em; height: 1.2em" />
-                      <span class="count">{{ oneComment.twoCommentCount }}</span>
+                      <span class="count">{{ levelOneComment.levelTwoCommentCount }}</span>
                     </span>
                   </div>
                 </div>
@@ -54,48 +66,68 @@
         </div>
         <div class="reply-container">
           <div class="list-container">
-            <div class="comment-item" v-for="(twoComment, twoIndex) in oneComment.children" :key="twoIndex">
+            <div
+              class="comment-item"
+              v-for="(levelTwoComment, levelTwoIndex) in levelOneComment.children"
+              :key="levelTwoIndex"
+            >
               <div class="comment-inner-container">
                 <div class="avatar">
-                  <img class="avatar-item" :src="twoComment.avatar" />
+                  <img class="avatar-item" :src="levelTwoComment.avatar" />
                 </div>
                 <div class="right">
                   <div class="author-wrapper">
                     <div class="author">
-                      <a class="name">{{ twoComment.username }}</a>
+                      <a class="name">{{ levelTwoComment.username }}</a>
                     </div>
                   </div>
                   <div class="content">
-                    回复<span style="color: rgba(61, 61, 61, 0.8)">{{ twoComment.replyUsername }}: </span
-                    >{{ twoComment.content }}
+                    回复<span style="color: rgba(61, 61, 61, 0.8)"
+                      >{{ levelTwoComment.replyUsername }}: </span
+                    >{{ levelTwoComment.content }}
                   </div>
 
                   <div class="info">
                     <div class="date">
-                      <span>{{ twoComment.time }}</span>
+                      <span>{{ levelTwoComment.time }}</span>
                     </div>
                     <div class="interactions">
                       <div class="like">
                         <span
                           class="like-wrapper"
-                          v-if="twoComment.isLike"
-                          @click="likeComment(twoComment, -1, oneIndex, twoIndex)"
+                          v-if="levelTwoComment.isLike"
+                          @click="likeComment(levelTwoComment, -1, levelOneIndex, levelTwoIndex)"
                         >
                           <i
                             class="iconfont icon-follow-fill"
-                            :style="{ width: '1em', height: '1em', color: oneComment.isLike ? 'red' : 'black' }"
-                            v-if="oneComment.isLike"
+                            :style="{
+                              width: '1em',
+                              height: '1em',
+                              color: levelOneComment.isLike ? 'red' : 'black',
+                            }"
+                            v-if="levelOneComment.isLike"
                           >
                           </i>
-                          <i class="iconfont icon-follow" style="width: 1em; height: 1em" v-else></i>
-                          <span class="count">{{ twoComment.likeCount }}</span>
+                          <i
+                            class="iconfont icon-follow"
+                            style="width: 1em; height: 1em"
+                            v-else
+                          ></i>
+                          <span class="count">{{ levelTwoComment.likeCount }}</span>
                         </span>
-                        <span class="like-wrapper" @click="likeComment(twoComment, 1, oneIndex, twoIndex)" v-else>
+                        <span
+                          class="like-wrapper"
+                          @click="likeComment(levelTwoComment, 1, levelOneIndex, levelTwoIndex)"
+                          v-else
+                        >
                           <i class="iconfont icon-follow" style="width: 1em; height: 1em"></i>
-                          <span class="count">{{ twoComment.likeCount }}</span>
+                          <span class="count">{{ levelTwoComment.likeCount }}</span>
                         </span>
                       </div>
-                      <div class="reply" @click="saveComment(twoComment, oneIndex, twoIndex)">
+                      <div
+                        class="reply"
+                        @click="saveComment(levelTwoComment, levelOneIndex, levelTwoIndex)"
+                      >
                         <span class="like-wrapper">
                           <ChatRound style="width: 1.2em; height: 1.2em" />
                           <span class="count">回复</span>
@@ -110,20 +142,22 @@
           <div
             class="show-more"
             v-if="
-              oneComment.twoCommentCount >= commentTotalMap.get(oneComment.id) &&
-              oneComment.twoCommentCount > showTwoCommentCount
+              levelOneComment.levelTwoCommentCount >=
+                levelTwoCommentCountMap.get(levelOneComment.id) &&
+              levelOneComment.levelTwoCommentCount > showLevelTwoCommentCount
             "
-            @click="loadTwoMore(oneComment.id, oneIndex)"
+            @click="loadLevelTwoMore(levelOneComment.id, levelOneIndex)"
           >
             展开更多的回复
           </div>
           <div
             class="show-more"
             v-if="
-              oneComment.twoCommentCount < commentTotalMap.get(oneComment.id) &&
-              oneComment.twoCommentCount > showTwoCommentCount
+              levelOneComment.levelTwoCommentCount <
+                levelTwoCommentCountMap.get(levelOneComment.id) &&
+              levelOneComment.levelTwoCommentCount > showLevelTwoCommentCount
             "
-            @click="reback(oneComment.id, oneIndex)"
+            @click="reback(levelOneComment.id, levelOneIndex)"
           >
             收起所有回复
           </div>
@@ -136,7 +170,10 @@
 <script lang="ts" setup>
 import { ChatRound } from "@element-plus/icons-vue";
 import { ref, watch } from "vue";
-import { getCommentWithCommentByNoteId, getTwoCommentPageByOneCommentId } from "@/apis/comment";
+import {
+  getCommentWithCommentByNoteId,
+  getLevelTwoCommentByLevelOneCommentId,
+} from "@/apis/comment";
 import { likeOrFavoriteByDTO } from "@/apis/likeOrFavorite";
 import type { LikeOrFavoriteDTO } from "@/types/likeOrFavorite";
 import { formateTime } from "@/utils/util";
@@ -150,6 +187,10 @@ const props = defineProps({
     // eslint-disable-next-line vue/require-valid-default-prop
     default: {},
   },
+  commentCount: {
+    type: Number,
+    default: 0,
+  },
   currentPage: {
     type: Number,
     default: 1,
@@ -161,19 +202,16 @@ const props = defineProps({
 });
 const emit = defineEmits(["clickComment"]);
 
-// const currentPage = ref(1);
-
 const dataList = ref<Array<any>>([]);
-const commentTotal = ref(0);
-const computedTotal = ref(0);
-const oneIndex = ref(-1);
-const twoIndex = ref(-1);
+const levelOneIndex = ref(-1);
+const levelTwoIndex = ref(-1);
 
-const pageSize = 7;
-const twoPageSize = 10;
-const showTwoCommentCount = 3;
-const commentMap = new Map();
-const commentTotalMap = new Map();
+const levelOnePageSize = 7;
+const levelTwoPageSize = 10;
+const loadedCommentCount = ref(0);
+const showLevelTwoCommentCount = 3;
+const commentPageMap = new Map(); // 记录每个一级评论的页数
+const levelTwoCommentCountMap = new Map(); // 记录每个一级评论的二级评论数量
 
 const likeComment = (comment: any, status: number, one: number, two: number) => {
   const data = {} as LikeOrFavoriteDTO;
@@ -192,8 +230,8 @@ const likeComment = (comment: any, status: number, one: number, two: number) => 
 };
 
 const saveComment = (comment: any, one: number, two: number) => {
-  oneIndex.value = one;
-  twoIndex.value = two;
+  levelOneIndex.value = one;
+  levelTwoIndex.value = two;
   emit("clickComment", comment);
 };
 
@@ -202,27 +240,28 @@ const addComment = () => {
 
   let comment = props.replyComment;
   console.log("comment", comment);
+  console.log(dataList.value);
   comment.likeCount = 0;
-  comment.twoCommentCount = 0;
+  comment.levelTwoCommentCount = 0;
   comment.time = formateTime(new Date().getTime());
   if (comment.pid === 0) {
     dataList.value.splice(0, 0, comment);
   } else {
-    if (dataList.value[oneIndex.value].children == null) {
-      dataList.value[oneIndex.value].children = [];
+    if (dataList.value[levelOneIndex.value].children == null) {
+      dataList.value[levelOneIndex.value].children = [];
     }
-    dataList.value[oneIndex.value].children.splice(twoIndex.value + 1, 0, comment);
+    dataList.value[levelOneIndex.value].children.splice(levelTwoIndex.value + 1, 0, comment);
   }
-  computedTotal.value += 1;
 };
 
-const loadTwoMore = (oneCommentId: number, index: number) => {
-  let page = commentMap.get(oneCommentId);
+const loadLevelTwoMore = (levelOneCommentId: number, index: number) => {
+  let page = commentPageMap.get(levelOneCommentId);
   page += 1;
-  getTwoCommentPageByOneCommentId(page, twoPageSize, oneCommentId).then((res) => {
+  console.log("loadLevelTwoMore", levelOneCommentId, page, index);
+  getLevelTwoCommentByLevelOneCommentId(page, levelTwoPageSize, levelOneCommentId).then((res) => {
     const { records } = res.data;
     if (page === 1) {
-      const spliceData = records.splice(showTwoCommentCount, records.length);
+      const spliceData = records.splice(showLevelTwoCommentCount, records.length);
       spliceData.forEach((item: any) => {
         item.time = formateTime(item.time);
         dataList.value[index].children.push(item);
@@ -233,56 +272,72 @@ const loadTwoMore = (oneCommentId: number, index: number) => {
         dataList.value[index].children.push(item);
       });
     }
-    commentTotalMap.set(oneCommentId, commentTotalMap.get(oneCommentId) + twoPageSize);
-    commentMap.set(oneCommentId, page);
+    levelTwoCommentCountMap.set(
+      levelOneCommentId,
+      levelTwoCommentCountMap.get(levelOneCommentId) + levelTwoPageSize
+    );
+    commentPageMap.set(levelOneCommentId, page);
   });
 };
 
+const loadMoreComments = () => {
+  if (loadedCommentCount.value < props.commentCount) {
+    getCommentData();
+  }
+};
+
 const reback = (oneCommentId: string, index: number) => {
-  commentTotalMap.set(oneCommentId, 0);
-  commentMap.set(oneCommentId, 0);
-  const twoSpliceComment = dataList.value[index].children.splice(0, showTwoCommentCount);
+  levelTwoCommentCountMap.set(oneCommentId, 0);
+  commentPageMap.set(oneCommentId, 0);
+  const twoSpliceComment = dataList.value[index].children.splice(0, showLevelTwoCommentCount);
   dataList.value[index].children = twoSpliceComment;
 };
 
 const getCommentData = () => {
-  computedTotal.value = 0;
-  getCommentWithCommentByNoteId(props.currentPage, pageSize, props.nid).then((res: any) => {
-    const { records, total } = res.data;
+  getCommentWithCommentByNoteId(props.currentPage, levelOnePageSize, props.nid).then((res: any) => {
+    const { records } = res.data;
     records.forEach((item: any) => {
       item.time = formateTime(item.time);
-      const twoComments = item.children;
+      const levelTwoComments = item.children;
       // 设置每一个一级评论的集合
-      commentMap.set(item.id, 0);
-      commentTotalMap.set(item.id, 0);
-      if (twoComments != null) {
-        const twoData = [] as Array<any>;
-        twoComments.forEach((element: any) => {
+      commentPageMap.set(item.id, 0);
+      if (levelTwoComments != null) {
+        const levelTwoData = [] as Array<any>;
+        let count = 0;
+        levelTwoComments.forEach((element: any) => {
           element.time = formateTime(element.time);
-          twoData.push(element);
+          levelTwoData.push(element);
+          loadedCommentCount.value += 1;
+          count += 1;
         });
-
-        item.children = twoData;
+        levelTwoCommentCountMap.set(item.id, count);
+        item.children = levelTwoData;
       }
-      computedTotal.value += item.twoCommentCount + 1;
       dataList.value.push(item);
+      loadedCommentCount.value += 1;
     });
-    console.log("---所有评论", dataList.value);
-    commentTotal.value = total;
-    if (pageSize * props.currentPage >= commentTotal.value) return;
   });
 };
 
 watch(
-  () => [props.nid, props.seed, props.currentPage],
+  () => [props.nid, props.seed],
   ([newNid, newSeed], [oldNid, oldSeed]) => {
-    console.log("评论功能", newNid, oldNid, props.currentPage);
+    // console.log("评论功能", newNid, oldNid);
     if (newNid !== oldNid) {
       dataList.value = [];
       getCommentData();
     }
     if (newSeed !== oldSeed) {
       addComment();
+    }
+  }
+);
+
+watch(
+  () => [props.currentPage],
+  ([newPage], [oldPage]) => {
+    if (newPage !== oldPage) {
+      getCommentData();
     }
   }
 );

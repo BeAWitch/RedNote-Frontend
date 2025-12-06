@@ -25,6 +25,6 @@ export interface Comment {
   time: number;
   likeCount: number;
   isLike: boolean;
-  twoCommentCount: number;
+  levelTwoCommentCount: number;
   children: Array<Comment>;
 }

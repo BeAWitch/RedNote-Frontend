@@ -36,35 +36,22 @@ export const saveCommentByDTO = (data: CommentDTO) => {
 };
 
 /**
- * 根据评论id同步评论集
- * @param data 评论id数据集
- * @returns
- */
-export const syncCommentByIds = (data: Array<string>) => {
-  return request<any>({
-    url: `/web/comment/syncCommentByIds`,
-    method: "post",
-    data: data,
-  });
-};
-
-/**
  * 根据一级评论id获取所有的二级评论
  * @param currentPage 当前页
  * @param pageSize 分页数
- * @param oneCommentId 一级评论id
+ * @param levelOneCommentId 一级评论id
  * @returns 评论结果集
  */
-export const getTwoCommentPageByOneCommentId = (
+export const getLevelTwoCommentByLevelOneCommentId = (
   currentPage: number,
   pageSize: number,
-  oneCommentId: number
+  levelOneCommentId: number
 ) => {
   return request<any>({
-    url: `/web/comment/getTwoCommentPageByOneCommentId/${currentPage}/${pageSize}`,
+    url: `/web/comment/getLevelTwoCommentByLevelOneCommentId/${currentPage}/${pageSize}`,
     method: "get",
     params: {
-      oneCommentId,
+      levelOneCommentId,
     },
   });
 };
@@ -75,12 +62,12 @@ export const getTwoCommentPageByOneCommentId = (
  * @param pageSize 分页数
  * @returns 评论结果集
  */
-export const getNoticeComment = (
+export const getCommentInfo = (
   currentPage: number,
   pageSize: number,
 ) => {
   return request<any>({
-    url: `/web/comment/getNoticeComment/${currentPage}/${pageSize}`,
+    url: `/web/comment/getCommentInfo/${currentPage}/${pageSize}`,
     method: "get",
   });
 };

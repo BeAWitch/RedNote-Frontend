@@ -3,7 +3,9 @@
     <div class="channel-container">
       <div class="scroll-container channel-scroll-container">
         <div class="content-container">
-          <div :class="categoryClass == 0 ? 'channel active' : 'channel'" @click="getNoteList">推荐</div>
+          <div :class="categoryClass == 0 ? 'channel active' : 'channel'" @click="getNoteList">
+            推荐
+          </div>
           <div
             :class="categoryClass == item.id ? 'channel active' : 'channel'"
             v-for="item in categoryList"
@@ -17,7 +19,10 @@
     </div>
     <div class="loading-container"></div>
     <div class="feeds-container" v-infinite-scroll="loadMoreData" :infinite-scroll-distance="50">
-      <div class="feeds-loading-top animate__animated animate__zoomIn animate__delay-0.5s" v-show="topLoading">
+      <div
+        class="feeds-loading-top animate__animated animate__zoomIn animate__delay-0.5s"
+        v-show="topLoading"
+      >
         <Loading style="width: 1.2em; height: 1.2em"></Loading>
       </div>
       <Waterfall
@@ -82,7 +87,11 @@
                     <span class="like-wrapper like-active">
                       <i
                         class="iconfont icon-follow-fill"
-                        :style="{ width: '1em', height: '1em', color: item.isLike ? 'red' : 'black' }"
+                        :style="{
+                          width: '1em',
+                          height: '1em',
+                          color: item.isLike ? 'red' : 'black',
+                        }"
                         v-if="item.isLike"
                       >
                       </i>
@@ -102,6 +111,7 @@
       </div>
       <div class="feeds-end" v-show="isEnd">······ 已经到底了 ·····</div>
     </div>
+
     <FloatingBtn @click-refresh="refresh"></FloatingBtn>
     <Main
       v-show="mainShow"
@@ -186,8 +196,10 @@ const refresh = () => {
 };
 
 const loadMoreData = () => {
+  console.log("加载更多数据");
   if (noteList.value.length >= noteTotal.value) {
     isEnd.value = true;
+    console.log("已经到底了");
     return; // 如果已经加载完所有数据，则不再请求
   }
   currentPage.value += 1;
@@ -437,9 +449,7 @@ initData();
       height: 40px;
       background: #fff;
       border: 1px solid rgba(0, 0, 0, 0.08);
-      box-shadow:
-        0 2px 8px 0 rgba(0, 0, 0, 0.1),
-        0 1px 2px 0 rgba(0, 0, 0, 0.02);
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
       border-radius: 100px;
       color: rgba(51, 51, 51, 0.8);
       display: flex;

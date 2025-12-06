@@ -66,6 +66,7 @@
             <div class="comments-el">
               <Comment
                 :nid="props.nid"
+                :commentCount="noteInfo.commentCount"
                 :currentPage="currentPage"
                 :replyComment="replyComment"
                 :seed="seed"
@@ -157,7 +158,7 @@ import { formateTime, getFileFromUrl, getRandomString, getFullFileUrl } from "@/
 import { followById } from "@/apis/follow";
 import Comment from "@/components/Comment.vue";
 import type { CommentDTO } from "@/types/comment";
-import { saveCommentByDTO, syncCommentByIds } from "@/apis/comment";
+import { saveCommentByDTO } from "@/apis/comment";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
 const userStore = useUserStore();
@@ -207,7 +208,6 @@ const replyComment = ref<any>({});
 const showSaveBtn = ref(false);
 const currentPage = ref(1);
 const seed = ref("");
-const commentIds = ref<Array<string>>([]);
 const noteScroller = ref(null);
 const isLogin = ref(false);
 const likeOrComment = ref({
@@ -249,10 +249,7 @@ const toUser = (uid: number) => {
 
 const close = () => {
   if (isLogin.value) {
-    syncCommentByIds(commentIds.value).then(() => {
-      commentIds.value = [];
-      emit("clickMain", props.nid, likeOrComment.value);
-    });
+    emit("clickMain", props.nid, likeOrComment.value);
   } else {
     emit("clickMain");
   }
@@ -334,7 +331,7 @@ const saveComment = () => {
   comment.nid = props.nid;
   comment.noteUid = noteInfo.value.uid;
   if (isNaN(commentObject.value.pid)) {
-    comment.pid = NaN;
+    comment.pid = 0;
     comment.replyId = NaN;
     comment.replyUid = noteInfo.value.uid;
     comment.level = 1;
@@ -359,7 +356,6 @@ const saveComment = () => {
     commentPlaceVal.value = "请输入内容";
     showSaveBtn.value = false;
     seed.value = getRandomString(12);
-    commentIds.value.push(res.data.id);
     likeOrComment.value.isComment = true;
   });
 };

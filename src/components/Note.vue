@@ -69,7 +69,11 @@
                   <span class="like-wrapper like-active">
                     <i
                       class="iconfont icon-follow-fill"
-                      :style="{ width: '1em', height: '1em', color: item.isLike ? 'red' : 'black' }"
+                      :style="{
+                        width: '1em',
+                        height: '1em',
+                        color: item.isLike ? 'red' : 'black',
+                      }"
                       v-if="item.isLike"
                     >
                     </i>
@@ -149,7 +153,7 @@ const toMain = (noteId: number) => {
 };
 
 const setData = (res: any) => {
-  const { records, total } = res.data || {records: [], total: 0};
+  const { records, total } = res.data || { records: [], total: 0 };
   noteTotal.value = total;
   // 过滤掉不是当前用户且状态“审核中”或“未通过”的记录
   const filteredRecords = records.filter((item: any) => {
