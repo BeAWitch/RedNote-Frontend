@@ -127,12 +127,15 @@
               </div>
             </div>
           </div>
-          <div class="follow"></div>
-        </div>
-        <div class="tool-btn" v-show="uid !== currentUid">
-          <el-button :icon="ChatLineRound" circle @click="chatShow = true" />
-          <el-button type="danger" round v-if="_isFollow" @click="follow(uid, 1)">已关注</el-button>
-          <el-button type="danger" round v-else @click="follow(uid, 0)">关注</el-button>
+          <div class="follow">
+            <div class="tool-btn" v-show="uid !== currentUid">
+              <el-button :icon="ChatLineRound" circle @click="showChat()" />
+              <el-button type="danger" round v-if="_isFollow" @click="follow(uid, 1)"
+                >已关注</el-button
+              >
+              <el-button type="danger" round v-else @click="follow(uid, 0)">关注</el-button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -167,7 +170,7 @@
     <div class="feeds-tab-container" style="--1ee3a37c: all 0.4s cubic-bezier(0.2, 0, 0.25, 1) 0s">
       <Chat
         v-if="chatShow"
-        :acceptUid="uid"
+        :conversation="conversation"
         class="animate__animated animate__zoomIn animate__delay-0.5s"
         @click-chat="chatShow = false"
       >
@@ -189,6 +192,8 @@ import { useRoute } from "vue-router";
 import { ElInput, ElMessage } from "element-plus";
 import AvatarUploader from "@/components/AvatarUploader.vue";
 import { get } from "node_modules/axios/index.d.cts";
+import type { Conversation, MessageInfo } from "@/types/message";
+import type { User } from "@/types/user";
 
 const route = useRoute();
 const userStore = useUserStore();
@@ -208,6 +213,7 @@ const usernameBackup = ref("");
 const inputVisible = ref(false);
 const InputRef = ref<InstanceType<typeof ElInput>>();
 const inputTagValue = ref("");
+const conversation = ref<Conversation>(); // 用于于 Chat 组件通信
 
 const showInput = () => {
   inputVisible.value = true;
@@ -295,6 +301,21 @@ const enterEdit = () => {
 
 const toPage = (val: number) => {
   type.value = val;
+};
+
+const showChat = () => {
+  conversation.value = {
+    id: 0,
+    uid: userInfo.value.id,
+    username: userInfo.value.username,
+    avatar: userInfo.value.avatar,
+    lastMessageId: NaN,
+    latestMessage: null as any,
+    unreadCount: 0,
+    time: "0",
+  };
+
+  chatShow.value = true;
 };
 
 const follow = (fid: number, type: number) => {
@@ -520,19 +541,7 @@ initData();
         right: 10%;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-      }
-
-      .tool-btn {
-        @media screen and (min-width: 108rem) {
-          display: none;
-        }
-      }
-
-      .tool-btn {
-        @media screen and (min-width: 90.3958rem) {
-          display: none;
-        }
+        gap: 0.5rem;
       }
 
       .tool-btn {

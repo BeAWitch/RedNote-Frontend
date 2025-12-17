@@ -12,15 +12,15 @@
               <a class>{{ item.username }}</a>
             </div>
             <div class="interaction-hint">
-              <span v-if="item.pid === '0'">评论了您的笔记</span>
-              <span v-if="item.replyUid === currentUid && item.pid !== '0'">回复了您的评论</span>
-              <span v-if="item.replyUid !== currentUid && item.pid !== '0'">回复了{{ item.replyUsername }}的评论</span>
+              <span v-if="item.pid === 0">评论了您的笔记</span>
+              <span v-if="item.replyUid === currentUid && item.pid !== 0">回复了您的评论</span>
+              <span v-if="item.replyUid !== currentUid && item.pid !== 0">回复了{{ item.replyUsername }}的评论</span>
               &nbsp;<span>{{ item.time }}</span>
             </div>
             <div class="interaction-content">
               <span>{{ item.content }}</span>
             </div>
-            <div class="quote-info" v-show="item.replyContent !== null">
+            <div class="quote-info" v-show="item.replyContent !== undefined">
               {{ item.replyContent }}
             </div>
             <!-- <div class="action">

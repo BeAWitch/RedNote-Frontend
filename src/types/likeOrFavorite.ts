@@ -1,5 +1,5 @@
 export interface LikeOrFavoriteDTO {
   likeOrFavoriteId: number;
-  publishUid: number;
+  notifyUid: number;
   type: number;
 }

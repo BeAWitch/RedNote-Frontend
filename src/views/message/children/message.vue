@@ -1,23 +1,23 @@
 <template>
   <div>
     <ul class="message-container">
-      <li class="message-item" v-for="(item, index) in dataList" :key="index">
+      <li class="message-item" v-for="(conversation, index) in conversationList" :key="index">
         <a class="user-avatar">
-          <!-- https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png -->
-          <img class="avatar-item" :src="item.avatar" @click="toUser(item.uid)" />
+          <img class="avatar-item" :src="conversation.avatar" @click="toUser(conversation.uid)" />
         </a>
         <div class="main">
-          <div class="info">
+          <div class="info" @click="toChat(conversation.id, index)">
             <div class="user-info">
-              <a class>{{ item.username }}</a>
+              <a class>{{ conversation.username }}</a>
               <div class="interaction-hint">
-                <span>{{ item.time }}</span>
+                <span>{{ conversation.time }}</span>
               </div>
             </div>
 
-            <div class="interaction-content" @click="toChat(item.uid, index)">
-              <span>{{ item.content }}</span>
-              <div class="msg-count" v-show="item.count > 0">{{ item.count }}</div>
+            <div class="interaction-content">
+              <span v-if="conversation.latestMessage.msgType == ConversationMessageType.TEXT">{{ conversation.latestMessage.content }}</span>
+              <span v-if="conversation.latestMessage.msgType == ConversationMessageType.IMAGE">[图片]</span>
+              <div class="msg-count" v-show="conversation.unreadCount > 0">{{ conversation.unreadCount }}</div>
             </div>
           </div>
         </div>
@@ -25,7 +25,7 @@
     </ul>
     <Chat
       v-if="chatShow"
-      :acceptUid="acceptUid"
+      :conversation="conversation"
       class="animate__animated animate__zoomIn animate__delay-0.5s"
       @click-chat="close"
     ></Chat>
@@ -33,57 +33,65 @@
 </template>
 
 <script lang="ts" setup>
-import { useImStore } from "@/stores/imStore";
-import { ref, watchEffect } from "vue";
+import { useMessageStore } from "@/stores/messageStore";
+import { onMounted, ref, watchEffect } from "vue";
 import { formateTime } from "@/utils/util";
 import Chat from "@/components/Chat.vue";
-import { clearMessageCount } from "@/apis/im";
+import { clearUnreadMessageCount } from "@/apis/message";
 import { useRouter } from "vue-router";
+import { Conversation, ConversationMessageType } from "@/types/message";
 
 const router = useRouter();
-const imStore = useImStore();
-const dataList = ref<Array<any>>([]);
+const messageStore = useMessageStore();
+const conversationList = ref<Array<Conversation>>([]);
 const chatShow = ref(false);
-const acceptUid = ref(NaN);
+const conversation = ref<Conversation>(); // 用于与 Chat 组件通信
 
 const toUser = (uid: number) => {
   router.push({ name: "user", query: { uid: uid } });
 };
 
 watchEffect(() => {
-  dataList.value = [];
-  const _countMessage = imStore.countMessage;
-  _countMessage.chatCount = 0;
-  imStore.userList.forEach((item) => {
-    item.time = formateTime(item.timestamp);
-    _countMessage.chatCount += item.count;
-    dataList.value.push(item);
+  conversationList.value = [];
+  messageStore.conversationList.forEach((conversation: Conversation) => {
+    const message = conversation.latestMessage;
+    conversation.time = formateTime(message.timestamp);
+    conversationList.value.push(conversation);
   });
-  imStore.setCountMessage(_countMessage);
 });
 
-const toChat = (uid: number, index: number) => {
-  const _countMessage = imStore.countMessage;
-  clearMessageCount(uid, 3).then(() => {
-    const chatCount = dataList.value[index].count;
-    _countMessage.chatCount -= chatCount;
-    dataList.value[index].count = 0;
-    imStore.setCountMessage(_countMessage);
-    acceptUid.value = uid;
+onMounted(() => {
+  conversationList.value = [];
+  messageStore.conversationList.forEach((conversation: Conversation) => {
+    const message = conversation.latestMessage;
+    conversation.time = formateTime(message.timestamp);
+    conversationList.value.push(conversation);
+  });
+});
+
+const toChat = (conversationId: number, index: number) => {
+  const messageCount = messageStore.messageCount;
+  clearUnreadMessageCount(conversationId).then(() => {
+    if (conversationList.value[index] == null) {
+      return;
+    }
+    // 更新数量
+    const chatCount = conversationList.value[index].unreadCount;
+    conversationList.value[index].unreadCount = 0;
+    messageCount.chatCount -= chatCount;
+    messageStore.setMessageCount(messageCount);
+    // 更新会话
+    conversation.value = conversationList.value[index];
+    console.log(conversation.value);
+    // 打开聊天窗口
     chatShow.value = true;
   });
 };
 
-const close = (uid: number) => {
-  const index = dataList.value.findIndex((item) => item.uid === uid);
-  const _countMessage = imStore.countMessage;
-  clearMessageCount(uid, 3).then(() => {
-    const chatCount = dataList.value[index].count;
-    _countMessage.chatCount -= chatCount;
-    dataList.value[index].count = 0;
-    imStore.setCountMessage(_countMessage);
-    chatShow.value = false;
-  });
+const close = (lastId: number) => {
+  chatShow.value = false;
+  conversation.value = undefined;
+  // TODO 更新上一次确认的消息
 };
 </script>
 

@@ -261,18 +261,19 @@ import SujContainer from "@/components/SujContainer.vue";
 import SearchContainer from "@/components/SearchContainer.vue";
 import { addRecord, getRecordByKeyWord } from "@/apis/search";
 import { getRandomString } from "@/utils/util";
-import { getChatUserList, getCountMessage } from "@/apis/im";
-import { useImStore } from "@/stores/imStore";
+import { getConversationList, getUncheckedMessageCount } from "@/apis/message";
+import { useMessageStore } from "@/stores/messageStore";
 import { logout } from "@/apis/user";
 import { wsKey } from "@/constants/constant";
 import ToUP from "@/views/to-up/index.vue";
 import { storage } from "@/utils/storage";
+import type { MessageCount } from "@/types/message";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const searchStore = useSearchStore();
-const imStore = useImStore();
+const messageStore = useMessageStore();
 const loginShow = ref(userStore.isLogin() === false);
 const userInfo = ref<any>({});
 const showHistory = ref(false);
@@ -347,7 +348,7 @@ watch(
 );
 
 watch(
-  () => [imStore.countMessage],
+  () => [messageStore.messageCount],
   (val) => {
     if (!val[0]) return;
     const allCount = val[0].chatCount + val[0].likeOrFavoriteCount + val[0].commentCount + val[0].followCount;
@@ -363,14 +364,14 @@ watch(
 const messageCount = computed({
   get: () => {
     return (
-      imStore.countMessage.chatCount +
-      imStore.countMessage.likeOrFavoriteCount +
-      imStore.countMessage.commentCount +
-      imStore.countMessage.followCount
+      messageStore.messageCount.chatCount +
+      messageStore.messageCount.likeOrFavoriteCount +
+      messageStore.messageCount.commentCount +
+      messageStore.messageCount.followCount
     );
   },
-  set: (val) => {
-    imStore.setCountMessage(val);
+  set: (val: MessageCount) => {
+    messageStore.setMessageCount(val);
   },
 });
 
@@ -461,42 +462,42 @@ const connectWs = (uid: string) => {
 
     if (message.msgType === 0) {
       const content = message.content;
-      const _countMessage = imStore.countMessage;
-      _countMessage.likeOrFavoriteCount = content.likeOrFavoriteCount;
-      _countMessage.commentCount = content.commentCount;
-      _countMessage.followCount = content.followCount;
-      imStore.setCountMessage(_countMessage);
+      const messageCount = messageStore.messageCount;
+      messageCount.likeOrFavoriteCount = content.likeOrFavoriteCount;
+      messageCount.commentCount = content.commentCount;
+      messageCount.followCount = content.followCount;
+      messageStore.setMessageCount(messageCount);
     }
     if (message.msgType === 1) {
-      imStore.setMessage(message);
+      messageStore.setMessage(message);
     }
     if (message.msgType === 5) {
-      const userList = message.content;
-      imStore.setUserList(userList);
+      const conversationList = message.content;
+      messageStore.setConversationList(conversationList);
     }
   };
 };
 
-const getChatUserListMethod = () => {
+const getChatConversationListMethod = () => {
   return new Promise((resolve) => {
-    getChatUserList().then((res: any) => {
+    getConversationList().then((res: any) => {
       const data = res.data;
-      const _countMessage = imStore.countMessage;
+      const messageCount = messageStore.messageCount;
       data.forEach((item: any) => {
-        _countMessage.chatCount += item.count;
+        messageCount.chatCount += item.count;
       });
-      imStore.setCountMessage(_countMessage);
-      imStore.setUserList(data);
-      resolve(_countMessage.chatCount);
+      messageStore.setMessageCount(messageCount);
+      messageStore.setConversationList(data);
+      resolve(messageCount.chatCount);
     });
   });
 };
 
-const getCountMessageMethod = () => {
+const getMessageCountMethod = () => {
   return new Promise((resolve) => {
-    getCountMessage().then((res: any) => {
+    getUncheckedMessageCount().then((res: any) => {
       const data = res.data;
-      imStore.setCountMessage(data);
+      messageStore.setMessageCount(data);
       resolve(data);
     });
   });
@@ -524,8 +525,8 @@ const getWsMessage = async () => {
   }
   loginShow.value = false;
   connectWs(userInfo.value.id);
-  const p = await getChatUserListMethod();
-  const q = (await getCountMessageMethod()) as any;
+  const p = await getChatConversationListMethod();
+  const q = (await getMessageCountMethod()) as any;
 
   // TODO: 需要修复显示数量bug
   const _countMessage = {} as any;
@@ -553,7 +554,7 @@ const initData = () => {
   userInfo.value = userStore.getUserInfo();
   const path = getPath();
   activeLink.value = path === "/search" ? 0 : routerList.findIndex((item) => item === path);
-  //getWsMessage();
+  getWsMessage();
 };
 
 initData();

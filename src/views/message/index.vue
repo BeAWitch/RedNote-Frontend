@@ -4,34 +4,70 @@
       <div class style="height: 72px">
         <div class="reds-sticky">
           <div class="reds-tabs-list">
-            <el-badge :value="_countMessage.chatCount" :max="99" :hidden="_countMessage.chatCount == 0">
-              <div :class="type === 3 ? 'reds-tab-item active tab-item' : 'reds-tab-item tab-item'">
-                <div class="badge-container" @click="toPage(3)">
+            <el-badge
+              :value="messageCount.chatCount"
+              :max="99"
+              :hidden="isNaN(messageCount.chatCount) || messageCount.chatCount == 0"
+            >
+              <div
+                :class="
+                  type === MessageType.CHAT
+                    ? 'reds-tab-item active tab-item'
+                    : 'reds-tab-item tab-item'
+                "
+              >
+                <div class="badge-container" @click="toPage(MessageType.CHAT)">
                   <span>我的消息</span>
                 </div>
               </div>
             </el-badge>
-            <el-badge :value="_countMessage.commentCount" :max="99" :hidden="_countMessage.commentCount == 0">
-              <div :class="type === 1 ? 'reds-tab-item active tab-item' : 'reds-tab-item tab-item'">
-                <div class="badge-container" @click="toPage(1)">
+            <el-badge
+              :value="messageCount.commentCount"
+              :max="99"
+              :hidden="messageCount.commentCount == 0"
+            >
+              <div
+                :class="
+                  type === MessageType.COMMENT
+                    ? 'reds-tab-item active tab-item'
+                    : 'reds-tab-item tab-item'
+                "
+              >
+                <div class="badge-container" @click="toPage(MessageType.COMMENT)">
                   <span>评论和@</span>
                 </div>
               </div>
             </el-badge>
             <el-badge
-              :value="_countMessage.likeOrFavoriteCount"
+              :value="messageCount.likeOrFavoriteCount"
               :max="99"
-              :hidden="_countMessage.likeOrFavoriteCount == 0"
+              :hidden="messageCount.likeOrFavoriteCount == 0"
             >
-              <div :class="type === 0 ? 'reds-tab-item active tab-item' : 'reds-tab-item tab-item'">
-                <div class="badge-container" @click="toPage(0)">
+              <div
+                :class="
+                  type === MessageType.LIKE_OR_FAVORITE
+                    ? 'reds-tab-item active tab-item'
+                    : 'reds-tab-item tab-item'
+                "
+              >
+                <div class="badge-container" @click="toPage(MessageType.LIKE_OR_FAVORITE)">
                   <span>赞和收藏</span>
                 </div>
               </div>
             </el-badge>
-            <el-badge :value="_countMessage.followCount" :max="99" :hidden="_countMessage.followCount == 0">
-              <div :class="type === 2 ? 'reds-tab-item active tab-item' : 'reds-tab-item tab-item'">
-                <div class="badge-container" @click="toPage(2)">
+            <el-badge
+              :value="messageCount.followCount"
+              :max="99"
+              :hidden="messageCount.followCount == 0"
+            >
+              <div
+                :class="
+                  type === MessageType.FOLLOW
+                    ? 'reds-tab-item active tab-item'
+                    : 'reds-tab-item tab-item'
+                "
+              >
+                <div class="badge-container" @click="toPage(MessageType.FOLLOW)">
                   <span>新增关注</span>
                 </div>
               </div>
@@ -40,10 +76,10 @@
           <div class="divider" style="margin: 16px 32px 0px"></div>
         </div>
       </div>
-      <Message v-if="type == 3"></Message>
-      <Comment v-if="type == 1" @click-main="toMain"></Comment>
-      <LikeFavorite v-if="type == 0" @click-main="toMain"></LikeFavorite>
-      <Follow v-if="type == 2"></Follow>
+      <Message v-if="type == MessageType.CHAT"></Message>
+      <Comment v-if="type == MessageType.COMMENT" @click-main="toMain"></Comment>
+      <LikeFavorite v-if="type == MessageType.LIKE_OR_FAVORITE" @click-main="toMain"></LikeFavorite>
+      <Follow v-if="type == MessageType.FOLLOW"></Follow>
       <!-- <router-view /> -->
 
       <Main
@@ -70,48 +106,52 @@ import { Top } from "@element-plus/icons-vue";
 import { ref, watchEffect } from "vue";
 import Message from "@/views/message/children/message.vue";
 import LikeFavorite from "@/views/message/children/like-favorite.vue";
-import Follower from "@/views/message/children/follower.vue";
+import Follow from "@/views/message/children/follow.vue";
 import Comment from "@/views/message/children/comment.vue";
 import Main from "@/views/main/main.vue";
-import { useImStore } from "@/stores/imStore";
-import { clearMessageCount } from "@/apis/im";
+import { useMessageStore } from "@/stores/messageStore";
+import { clearUncheckedMessageCount } from "@/apis/message";
 import { useUserStore } from "@/stores/userStore";
-const imStore = useImStore();
+import { MessageType, type MessageCount } from "@/types/message";
+
+const messageStore = useMessageStore();
 const userStore = useUserStore();
 
-const type = ref(3);
+const type = ref(MessageType.CHAT);
 const nid = ref(NaN);
 const currentUid = ref(NaN);
 const mainShow = ref(false);
-const _countMessage = ref({
-  chatCount: 0,
-  likeOrFavoriteCount: 0,
-  commentCount: 0,
-  followCount: 0,
-});
+const messageCount = ref<MessageCount>(messageStore.messageCount);
 const isLogin = ref(false);
 
 watchEffect(() => {
-  _countMessage.value = imStore.countMessage;
+  messageCount.value = messageStore.messageCount;
 });
 
-const toPage = (val: number) => {
-  const _countMessage = imStore.countMessage;
-  clearMessageCount(currentUid.value, val).then(() => {
-    switch (val) {
-      case 0:
-        _countMessage.likeOrFavoriteCount = 0;
-        break;
-      case 1:
-        _countMessage.commentCount = 0;
-        break;
-      default:
-        _countMessage.followCount = 0;
-        break;
-    }
-    imStore.setCountMessage(_countMessage);
-    type.value = val;
-  });
+const toPage = (messageType: MessageType) => {
+  const messageCount: MessageCount = messageStore.messageCount;
+  switch (messageType) {
+    case MessageType.LIKE_OR_FAVORITE:
+      clearUncheckedMessageCount(messageType).then(() => {
+        messageCount.likeOrFavoriteCount = 0;
+      });
+      break;
+    case MessageType.COMMENT:
+      clearUncheckedMessageCount(messageType).then(() => {
+        messageCount.commentCount = 0;
+      });
+      break;
+    case MessageType.FOLLOW:
+      clearUncheckedMessageCount(messageType).then(() => {
+        messageCount.followCount = 0;
+      });
+      break;
+    default:
+      break;
+  }
+
+  messageStore.setMessageCount(messageCount);
+  type.value = messageType;
 };
 
 const close = () => {
@@ -131,6 +171,7 @@ const initData = () => {
 };
 initData();
 </script>
+
 <style lang="less" scoped>
 .container {
   flex: 1;

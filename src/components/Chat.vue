@@ -1,15 +1,14 @@
 <template>
   <div
     class="container"
-    style="transition: background-color 0.4s ease 0s;
-  hsla(0,0%,100%,0.98)"
+    style="transition: background-color 0.4s ease 0s;hsla: (0,0%,100%,0.98)"
   >
     <div class="chat-container">
       <header class="chat-header">
         <div class="header-left"></div>
         <div class="header-user">
-          <el-avatar :src="acceptUser.avatar" />
-          <span style="margin-left: 0.3125rem">{{ acceptUser.username }}</span>
+          <el-avatar :src="conversation.avatar" />
+          <span style="margin-left: 0.3125rem">{{ conversation.username }}</span>
         </div>
         <div class="header-tool">
           <More class="icon-item"></More>
@@ -18,11 +17,14 @@
       <hr color="#f4f4f4" />
       <main class="chat-main">
         <div class="chat-record" ref="ChatRef" @scroll="showScroll()">
-          <div v-for="(item, index) in dataList" :key="index">
-            <div class="message-my-item" v-if="item.acceptUid === acceptUser.id">
-              <Loading v-show="item.isLoading" style="width: 0.8em; height: 0.8em; margin-right: 0.5rem" />
-              <div class="message-my-conent" v-if="item.msgType == 1">{{ item.content }}</div>
-              <img :src="item.content" class="message-img" v-if="item.msgType == 2" />
+          <div v-for="(message, index) in messageList" :key="index">
+            <div class="message-my-item" v-if="message.sendUid === currentUser.id">
+              <!-- <Loading
+                v-show="message.isLoading"
+                style="width: 0.8em; height: 0.8em; margin-right: 0.5rem"
+              /> -->
+              <div class="message-my-conent" v-if="message.msgType == ConversationMessageType.TEXT">{{ message.content }}</div>
+              <img :src="message.content" class="message-img" v-if="message.msgType == ConversationMessageType.IMAGE" />
               <div class="user-avatar">
                 <el-avatar :src="currentUser.avatar" />
               </div>
@@ -30,10 +32,10 @@
 
             <div class="message-item" v-else>
               <div class="user-avatar">
-                <el-avatar :src="acceptUser.avatar" />
+                <el-avatar :src="conversation.avatar" />
               </div>
-              <div class="message-conent" v-if="item.msgType == 1">{{ item.content }}</div>
-              <img :src="item.content" class="message-img" v-if="item.msgType == 2" />
+              <div class="message-conent" v-if="message.msgType == ConversationMessageType.TEXT">{{ message.content }}</div>
+              <img :src="message.content" class="message-img" v-if="message.msgType == ConversationMessageType.IMAGE" />
             </div>
           </div>
         </div>
@@ -59,12 +61,14 @@
               class="post-content"
               contenteditable="true"
               data-tribute="true"
-              placeholder="请输入消息，支持发送图片哦～"
+              placeholder="请输入消息"
               @keyup.enter="submit"
             ></p>
             <div class="input-btn">
               <div></div>
-              <el-button type="primary" round style="width: 5.55rem" @click="submit">发送</el-button>
+              <el-button type="primary" round style="width: 5.55rem" @click="submit"
+                >发送</el-button
+              >
             </div>
           </div>
         </div>
@@ -80,34 +84,33 @@
 <script lang="ts" setup>
 import { More, PieChart, Picture, Clock, Close, Loading } from "@element-plus/icons-vue";
 import { ref, onMounted, watch, nextTick } from "vue";
-import { getUserById } from "@/apis/user";
-import { getAllChatRecord, sendMsg } from "@/apis/im";
+import { getMessage, sendMessage } from "@/apis/message";
 import { useUserStore } from "@/stores/userStore";
-import { useImStore } from "@/stores/imStore";
+import { useMessageStore } from "@/stores/messageStore";
 import type { UploadProps } from "element-plus";
 import { convertImgToBase64 } from "@/utils/util";
 import { getRandomString } from "@/utils/util";
+import { ChatType, Conversation, ConversationMessageType, type Message } from "@/types/message";
 
-const imStore = useImStore();
+const messageStore = useMessageStore();
 const userStore = useUserStore();
 const props = defineProps({
-  acceptUid: {
-    type: Number,
-    default: 0,
+  conversation: {
+    type: Object as () => Conversation,
+    default: null,
   },
 });
 
 const ChatRef = ref();
 const currentUser = ref<any>({});
-const acceptUser = ref<any>({});
-const dataList = ref<any>();
+const messageList = ref<Array<Message>>([]);
 const currentPage = ref(1);
 const pageSize = 15;
 const messageTotal = ref(0);
 const postContent = ref(null);
 
-watch(
-  () => imStore.message,
+/* watch(
+  () => messageStore.message,
   (newVal) => {
     if (newVal.sendUid === acceptUser.value.id) {
       insertMessage(newVal);
@@ -116,10 +119,10 @@ watch(
   {
     deep: true,
   }
-);
+); */
 
-const insertMessage = async (message: any) => {
-  dataList.value?.push(message);
+const insertMessage = async (message: Message) => {
+  messageList.value.push(message);
   await nextTick();
   // 滚动到最底部
   ChatRef.value.lastElementChild.scrollIntoView({
@@ -131,7 +134,7 @@ const insertMessage = async (message: any) => {
 const emit = defineEmits(["clickChat"]);
 
 const close = () => {
-  emit("clickChat", props.acceptUid);
+  emit("clickChat", props.conversation);
 };
 
 // 选择图片
@@ -140,8 +143,9 @@ const handleChange: UploadProps["onChange"] = (uploadFile) => {
   convertImgToBase64(
     uploadFile.raw!,
     (data: any) => {
-      document.getElementById("post-textarea")!.innerHTML +=
-        `<img src='${imgSrc}' text='${data}' style='width:3.75rem;height:3.75rem;object-fit: cover;'></img>`;
+      document.getElementById(
+        "post-textarea"
+      )!.innerHTML += `<img src='${imgSrc}' text='${data}' style='width:3.75rem;height:3.75rem;object-fit: cover;'></img>`;
     },
     (error: any) => {
       console.log("error", error);
@@ -149,15 +153,12 @@ const handleChange: UploadProps["onChange"] = (uploadFile) => {
   );
 };
 
-const sendMessage = (message: any) => {
+const sendMessageMethod = (message: Message) => {
   new Promise((res) => {
     insertMessage(message);
     res(message);
   }).then((_message: any) => {
-    sendMsg(_message).then(() => {
-      const data = dataList.value.filter((item: any) => item.id === _message.id);
-      data[0].isLoading = false;
-    });
+    sendMessage(_message);
   });
 };
 
@@ -174,7 +175,9 @@ const submit = () => {
   // 注意此处对文件数组进行了参数循环添加
   const _contentImg = htmlContent.match(imgReg);
 
-  const replaceContent = htmlContent.replaceAll(imgReg, "#").replace(/<[^>]*>[^<]*(<[^>]*>)?/gi, "");
+  const replaceContent = htmlContent
+    .replaceAll(imgReg, "#")
+    .replace(/<[^>]*>[^<]*(<[^>]*>)?/gi, "");
   // 内容分割
   const _splitContent = replaceContent.split("#");
 
@@ -182,16 +185,15 @@ const submit = () => {
     if (item === null || item === "") {
       return;
     }
-    //发送文字消息
-    const message = {} as any;
-    message.id = getRandomString(12);
+    // 发送文字消息
+    const message = {} as Message;
     message.sendUid = currentUser.value.id;
-    message.acceptUid = acceptUser.value.id;
+    message.acceptUid = props.conversation.uid;
     message.content = item;
-    message.msgType = 1;
-    message.chatType = 0;
-    message.isLoading = true;
-    sendMessage(message);
+    message.msgType = ConversationMessageType.TEXT;
+    message.chatType = ChatType.PRIVATE;
+    console.log(message);
+    sendMessageMethod(message);
   });
 
   // 图片分割
@@ -200,12 +202,12 @@ const submit = () => {
     const message = {} as any;
     message.id = getRandomString(12);
     message.sendUid = currentUser.value.id;
-    message.acceptUid = acceptUser.value.id;
+    message.acceptUid = props.conversation.uid;
     message.content = src[1];
-    message.msgType = 2;
-    message.chatType = 0;
-    message.isLoading = true;
-    sendMessage(message);
+    message.msgType = ConversationMessageType.IMAGE;
+    message.chatType = ChatType.PRIVATE;
+    console.log(message);
+    sendMessageMethod(message);
   });
   // const content = htmlContent.replace(/<[^>]*>[^<]*(<[^>]*>)?/gi, "");
   document.getElementById("post-textarea")!.innerHTML = "";
@@ -220,17 +222,17 @@ const showScroll = () => {
 
 const loadMoreData = () => {
   currentPage.value++;
-  getAllChatRecordMethod();
+  getMessageMethod();
 };
 
-const getAllChatRecordMethod = () => {
-  getAllChatRecord(currentPage.value, pageSize, props.acceptUid).then((res) => {
+const getMessageMethod = () => {
+  getMessage(currentPage.value, pageSize, props.conversation.id).then((res) => {
     const { records, total } = res.data;
     messageTotal.value = total;
     records.forEach((item: any) => {
-      dataList.value?.splice(0, 0, item);
+      messageList.value?.splice(0, 0, item);
     });
-    if (dataList.value.length >= total) {
+    if (messageList.value.length >= total) {
       ChatRef.value.scrollTop = 0;
     } else {
       ChatRef.value.scrollTop += ChatRef.value.clientHeight;
@@ -240,15 +242,12 @@ const getAllChatRecordMethod = () => {
 
 onMounted(async () => {
   currentUser.value = userStore.getUserInfo();
-  getUserById(props.acceptUid).then((res) => {
-    acceptUser.value = res.data;
-  });
-  dataList.value = [];
-  getAllChatRecord(currentPage.value, pageSize, props.acceptUid).then(async (res) => {
+  messageList.value = [];
+  getMessage(currentPage.value, pageSize, props.conversation.id).then(async (res) => {
     const { records, total } = res.data;
     messageTotal.value = total;
     records.forEach((item: any) => {
-      dataList.value.splice(0, 0, item);
+      messageList.value.splice(0, 0, item);
     });
     await nextTick();
     // 滚动到最底部
@@ -259,6 +258,7 @@ onMounted(async () => {
   });
 });
 </script>
+
 <style lang="less" scoped>
 .icon-item {
   width: 1.2em;
@@ -281,16 +281,12 @@ onMounted(async () => {
   .chat-container {
     width: 65%;
     margin: 0 auto;
-    height: 90%;
+    height: 80%;
     min-width: 50rem;
-    transition:
-      transform 0.4s ease 0s,
-      width 0.4s ease 0s;
+    transition: transform 0.4s ease 0s, width 0.4s ease 0s;
     transform: translate(6.5rem, 2rem) scale(1);
     overflow: visible;
-    box-shadow:
-      0 0.5rem 4rem 0 rgba(0, 0, 0, 0.04),
-      0 0.0625rem 0.25rem 0 rgba(0, 0, 0, 0.02);
+    box-shadow: 0 0.5rem 4rem 0 rgba(0, 0, 0, 0.04), 0 0.0625rem 0.25rem 0 rgba(0, 0, 0, 0.02);
     border-radius: 1.25rem;
     background-color: #fff;
     transform-origin: left top;
@@ -424,8 +420,7 @@ onMounted(async () => {
     cursor: pointer;
 
     .close-mask-white {
-      box-shadow:
-        0 0.125rem 0.5rem 0 rgba(0, 0, 0, 0.04),
+      box-shadow: 0 0.125rem 0.5rem 0 rgba(0, 0, 0, 0.04),
         0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.02);
       border: 0.0625rem solid rgba(0, 0, 0, 0.08);
     }

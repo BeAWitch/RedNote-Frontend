@@ -272,7 +272,7 @@ const likeOrFavorite = (type: number, val: number) => {
   }
   const likeOrFavoriteDTO = {} as LikeOrFavoriteDTO;
   likeOrFavoriteDTO.likeOrFavoriteId = noteInfo.value.id;
-  likeOrFavoriteDTO.publishUid = noteInfo.value.uid;
+  likeOrFavoriteDTO.notifyUid = noteInfo.value.uid;
   likeOrFavoriteDTO.type = type == 1 ? 1 : 3;
   likeOrFavoriteByDTO(likeOrFavoriteDTO).then(() => {
     if (type == 1) {

@@ -216,7 +216,7 @@ const levelTwoCommentCountMap = new Map(); // 记录每个一级评论的二级�
 const likeComment = (comment: any, status: number, one: number, two: number) => {
   const data = {} as LikeOrFavoriteDTO;
   data.likeOrFavoriteId = comment.id;
-  data.publishUid = comment.uid;
+  data.notifyUid = comment.uid;
   data.type = 2;
   likeOrFavoriteByDTO(data).then(() => {
     if (two === -1) {

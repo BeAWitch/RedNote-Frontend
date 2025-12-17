@@ -218,7 +218,7 @@ const mainShow = ref(false);
 const nid = ref(NaN);
 const likeOrFavoriteDTO = ref<LikeOrFavoriteDTO>({
   likeOrFavoriteId: NaN,
-  publishUid: NaN,
+  notifyUid: NaN,
   type: 0,
 });
 const isLogin = ref(false);
@@ -286,7 +286,7 @@ const refresh = () => {
 
 const like = (nid: number, uid: number, index: number, val: number) => {
   likeOrFavoriteDTO.value.likeOrFavoriteId = nid;
-  likeOrFavoriteDTO.value.publishUid = uid;
+  likeOrFavoriteDTO.value.notifyUid = uid;
   likeOrFavoriteDTO.value.type = 1;
   likeOrFavoriteByDTO(likeOrFavoriteDTO.value).then(() => {
     if (val < 0 && trendData.value[index].likeCount == 0) {
