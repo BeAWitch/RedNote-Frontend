@@ -1,7 +1,7 @@
 <template>
   <div
     class="container"
-    style="transition: background-color 0.4s ease 0s;hsla: (0,0%,100%,0.98)"
+    style="transition: background-color 0.4s ease 0s; hsla: (0, 0%, 100%, 0.98)"
   >
     <div class="chat-container">
       <header class="chat-header">
@@ -19,12 +19,22 @@
         <div class="chat-record" ref="ChatRef" @scroll="showScroll()">
           <div v-for="(message, index) in messageList" :key="index">
             <div class="message-my-item" v-if="message.sendUid === currentUser.id">
-              <!-- <Loading
-                v-show="message.isLoading"
-                style="width: 0.8em; height: 0.8em; margin-right: 0.5rem"
-              /> -->
-              <div class="message-my-conent" v-if="message.msgType == ConversationMessageType.TEXT">{{ message.content }}</div>
-              <img :src="message.content" class="message-img" v-if="message.msgType == ConversationMessageType.IMAGE" />
+              <div class="message-my-content">
+                <template v-for="(item, i) in message.content.contents" :key="i">
+                  <!-- 文本 -->
+                  <span v-if="item.type === ConversationMessageType.TEXT" class="message-text">
+                    {{ item.content }}
+                  </span>
+
+                  <!-- 图片 -->
+                  <img
+                    v-else-if="item.type === ConversationMessageType.IMAGE"
+                    :src="item.content"
+                    class="message-img"
+                  />
+                </template>
+              </div>
+
               <div class="user-avatar">
                 <el-avatar :src="currentUser.avatar" />
               </div>
@@ -34,8 +44,20 @@
               <div class="user-avatar">
                 <el-avatar :src="conversation.avatar" />
               </div>
-              <div class="message-conent" v-if="message.msgType == ConversationMessageType.TEXT">{{ message.content }}</div>
-              <img :src="message.content" class="message-img" v-if="message.msgType == ConversationMessageType.IMAGE" />
+
+              <div class="message-content">
+                <template v-for="(item, i) in message.content.contents" :key="i">
+                  <span v-if="item.type === ConversationMessageType.TEXT" class="message-text">
+                    {{ item.content }}
+                  </span>
+
+                  <img
+                    v-else-if="item.type === ConversationMessageType.IMAGE"
+                    :src="item.content"
+                    class="message-img"
+                  />
+                </template>
+              </div>
             </div>
           </div>
         </div>
@@ -89,8 +111,14 @@ import { useUserStore } from "@/stores/userStore";
 import { useMessageStore } from "@/stores/messageStore";
 import type { UploadProps } from "element-plus";
 import { convertImgToBase64 } from "@/utils/util";
-import { getRandomString } from "@/utils/util";
-import { ChatType, Conversation, ConversationMessageType, type Message } from "@/types/message";
+import {
+  ChatType,
+  type Conversation,
+  ConversationMessageType,
+  type Message,
+  type MessageContent,
+  type ContentInfo,
+} from "@/types/message";
 
 const messageStore = useMessageStore();
 const userStore = useUserStore();
@@ -109,17 +137,17 @@ const pageSize = 15;
 const messageTotal = ref(0);
 const postContent = ref(null);
 
-/* watch(
+watch(
   () => messageStore.message,
   (newVal) => {
-    if (newVal.sendUid === acceptUser.value.id) {
+    if (newVal?.sendUid === props.conversation.uid) {
       insertMessage(newVal);
     }
   },
   {
     deep: true,
   }
-); */
+);
 
 const insertMessage = async (message: Message) => {
   messageList.value.push(message);
@@ -145,7 +173,7 @@ const handleChange: UploadProps["onChange"] = (uploadFile) => {
     (data: any) => {
       document.getElementById(
         "post-textarea"
-      )!.innerHTML += `<img src='${imgSrc}' text='${data}' style='width:3.75rem;height:3.75rem;object-fit: cover;'></img>`;
+      )!.innerHTML += `<img src='${imgSrc}' text='${data}' style='width:4rem;height:4rem;object-fit: cover;'></img>`;
     },
     (error: any) => {
       console.log("error", error);
@@ -162,56 +190,68 @@ const sendMessageMethod = (message: Message) => {
   });
 };
 
-const submit = () => {
-  let htmlContent = document.getElementById("post-textarea")!.innerHTML;
+const submit = async () => {
+  const editor = document.getElementById("post-textarea");
+  if (!editor) return;
 
-  if (htmlContent === "") {
-    return;
+  const contents: ContentInfo[] = [];
+  const childNodes = Array.from(editor.childNodes);
+
+  for (const node of childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim();
+      if (text) {
+        contents.push({
+          type: ConversationMessageType.TEXT,
+          content: text,
+        });
+      }
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+
+      if (el.tagName === "IMG") {
+        const imgEl = el as HTMLImageElement;
+        let src = imgEl.src;
+
+        // 如果是 blob URL，先转 base64
+        if (src.startsWith("blob:")) {
+          src = await blobToBase64(await fetch(src).then((r) => r.blob()));
+        }
+
+        contents.push({
+          type: ConversationMessageType.IMAGE,
+          content: src, // 直接存 base64
+        });
+      }
+    }
   }
 
-  const imgReg = /<img.*?(?:>|\/>)/gi;
-  const srcReg = /text=[\'\"]?([^\'\"]*)[\'\"]?/i;
-  // let params = new FormData();
-  // 注意此处对文件数组进行了参数循环添加
-  const _contentImg = htmlContent.match(imgReg);
+  if (contents.length === 0) return;
 
-  const replaceContent = htmlContent
-    .replaceAll(imgReg, "#")
-    .replace(/<[^>]*>[^<]*(<[^>]*>)?/gi, "");
-  // 内容分割
-  const _splitContent = replaceContent.split("#");
+  const message = {
+    sendUid: currentUser.value.id,
+    acceptUid: props.conversation.uid,
+    chatType: ChatType.PRIVATE,
+    content: { contents } as MessageContent,
+  };
 
-  _splitContent.forEach((item: string) => {
-    if (item === null || item === "") {
-      return;
-    }
-    // 发送文字消息
-    const message = {} as Message;
-    message.sendUid = currentUser.value.id;
-    message.acceptUid = props.conversation.uid;
-    message.content = item;
-    message.msgType = ConversationMessageType.TEXT;
-    message.chatType = ChatType.PRIVATE;
-    console.log(message);
-    sendMessageMethod(message);
-  });
+  console.log("send message:", message);
+  sendMessageMethod(message);
 
-  // 图片分割
-  _contentImg?.forEach((item: any) => {
-    const src = item.match(srcReg);
-    const message = {} as any;
-    message.id = getRandomString(12);
-    message.sendUid = currentUser.value.id;
-    message.acceptUid = props.conversation.uid;
-    message.content = src[1];
-    message.msgType = ConversationMessageType.IMAGE;
-    message.chatType = ChatType.PRIVATE;
-    console.log(message);
-    sendMessageMethod(message);
-  });
-  // const content = htmlContent.replace(/<[^>]*>[^<]*(<[^>]*>)?/gi, "");
-  document.getElementById("post-textarea")!.innerHTML = "";
+  editor.innerHTML = "";
 };
+
+// Blob 转 base64
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 const showScroll = () => {
   const topval = ChatRef.value.scrollTop;
@@ -251,7 +291,7 @@ onMounted(async () => {
     });
     await nextTick();
     // 滚动到最底部
-    ChatRef.value.lastElementChild.scrollIntoView({
+    ChatRef.value.lastElementChild?.scrollIntoView({
       block: "start",
       behavior: "smooth",
     });
@@ -311,8 +351,7 @@ onMounted(async () => {
       height: 100%;
 
       .message-img {
-        width: 15rem;
-        height: 18.75rem;
+        width: 4rem;
         object-fit: cover;
         margin: 0 0.3125rem;
         border-radius: 0.5rem;
@@ -329,11 +368,11 @@ onMounted(async () => {
           align-items: center;
           margin: 1.25rem 0;
 
-          .message-conent {
+          .message-content {
             margin-left: 0.3125rem;
             padding: 0.25rem 0.625rem;
-            border: 0.0625rem solid #f4f4f4;
-            background-color: #fff;
+            border: 0.0625rem solid #e0e0e0;
+            background-color: #f8f8f8;
             border-radius: 0.5rem;
             font-size: 1rem;
           }
@@ -345,11 +384,11 @@ onMounted(async () => {
           align-items: center;
           margin: 1.25rem 0;
 
-          .message-my-conent {
+          .message-my-content {
             margin-right: 0.3125rem;
             padding: 0.25rem 0.625rem;
-            color: #fff;
-            background-color: rgb(0, 170, 255);
+            border: 0.0625rem solid #e0e0e0;
+            background-color: #f8f8f8;
             border-radius: 0.5rem;
             font-size: 1rem;
           }

@@ -1,3 +1,4 @@
+import type { UncheckedMessageType } from "@/types/message";
 import request from "@/utils/request";
 import type { Message } from "element-plus";
 
@@ -28,7 +29,7 @@ export const getConversationList = () => {
  * @param type 类型
  * @returns success
  */
-export const clearUncheckedMessageCount = (type: number) => {
+export const clearUncheckedMessageCount = (type: UncheckedMessageType) => {
   return request<any>({
     url: "/web/chat/clearUncheckedMessageCount",
     method: "get",

@@ -24,6 +24,9 @@ service.interceptors.request.use(
   }
 );
 
+// 刷新标记
+let isRefreshing = false;
+
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -47,8 +50,7 @@ service.interceptors.response.use(
 
       switch (status) {
         case 401:
-          ElMessage.warning("登录过期，请重新登录");
-          window.localStorage.clear();
+          handle401();
           break;
         case 404:
           ElMessage.warning("请求地址不存在");
@@ -68,6 +70,23 @@ service.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// 统一处理 401，防止多次出现提示
+function handle401() {
+  if (isRefreshing) return;
+
+  isRefreshing = true;
+
+  ElMessage.warning("登录过期，请重新登录");
+
+  // 清理登录态
+  localStorage.clear();
+
+  // 给用户一点时间看到提示
+  setTimeout(() => {
+    window.location.reload();
+  }, 800);
+}
 
 // 导出 axios 实例
 export default service;

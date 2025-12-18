@@ -11,12 +11,12 @@
             >
               <div
                 :class="
-                  type === MessageType.CHAT
+                  type === UncheckedMessageType.CHAT
                     ? 'reds-tab-item active tab-item'
                     : 'reds-tab-item tab-item'
                 "
               >
-                <div class="badge-container" @click="toPage(MessageType.CHAT)">
+                <div class="badge-container" @click="toPage(UncheckedMessageType.CHAT)">
                   <span>我的消息</span>
                 </div>
               </div>
@@ -26,14 +26,8 @@
               :max="99"
               :hidden="messageCount.commentCount == 0"
             >
-              <div
-                :class="
-                  type === MessageType.COMMENT
-                    ? 'reds-tab-item active tab-item'
-                    : 'reds-tab-item tab-item'
-                "
-              >
-                <div class="badge-container" @click="toPage(MessageType.COMMENT)">
+              <div :class="type === UncheckedMessageType.COMMENT ? 'reds-tab-item active' : 'reds-tab-item'">
+                <div class="badge-container" @click="toPage(UncheckedMessageType.COMMENT)">
                   <span>评论和@</span>
                 </div>
               </div>
@@ -45,12 +39,12 @@
             >
               <div
                 :class="
-                  type === MessageType.LIKE_OR_FAVORITE
+                  type === UncheckedMessageType.LIKE_OR_FAVORITE
                     ? 'reds-tab-item active tab-item'
                     : 'reds-tab-item tab-item'
                 "
               >
-                <div class="badge-container" @click="toPage(MessageType.LIKE_OR_FAVORITE)">
+                <div class="badge-container" @click="toPage(UncheckedMessageType.LIKE_OR_FAVORITE)">
                   <span>赞和收藏</span>
                 </div>
               </div>
@@ -62,12 +56,12 @@
             >
               <div
                 :class="
-                  type === MessageType.FOLLOW
+                  type === UncheckedMessageType.FOLLOW
                     ? 'reds-tab-item active tab-item'
                     : 'reds-tab-item tab-item'
                 "
               >
-                <div class="badge-container" @click="toPage(MessageType.FOLLOW)">
+                <div class="badge-container" @click="toPage(UncheckedMessageType.FOLLOW)">
                   <span>新增关注</span>
                 </div>
               </div>
@@ -76,10 +70,10 @@
           <div class="divider" style="margin: 16px 32px 0px"></div>
         </div>
       </div>
-      <Message v-if="type == MessageType.CHAT"></Message>
-      <Comment v-if="type == MessageType.COMMENT" @click-main="toMain"></Comment>
-      <LikeFavorite v-if="type == MessageType.LIKE_OR_FAVORITE" @click-main="toMain"></LikeFavorite>
-      <Follow v-if="type == MessageType.FOLLOW"></Follow>
+      <Message v-if="type == UncheckedMessageType.CHAT"></Message>
+      <Comment v-if="type == UncheckedMessageType.COMMENT" @click-main="toMain"></Comment>
+      <LikeFavorite v-if="type == UncheckedMessageType.LIKE_OR_FAVORITE" @click-main="toMain"></LikeFavorite>
+      <Follow v-if="type == UncheckedMessageType.FOLLOW"></Follow>
       <!-- <router-view /> -->
 
       <Main
@@ -112,12 +106,12 @@ import Main from "@/views/main/main.vue";
 import { useMessageStore } from "@/stores/messageStore";
 import { clearUncheckedMessageCount } from "@/apis/message";
 import { useUserStore } from "@/stores/userStore";
-import { MessageType, type MessageCount } from "@/types/message";
+import { UncheckedMessageType, type MessageCount } from "@/types/message";
 
 const messageStore = useMessageStore();
 const userStore = useUserStore();
 
-const type = ref(MessageType.CHAT);
+const type = ref(UncheckedMessageType.CHAT);
 const nid = ref(NaN);
 const currentUid = ref(NaN);
 const mainShow = ref(false);
@@ -128,20 +122,20 @@ watchEffect(() => {
   messageCount.value = messageStore.messageCount;
 });
 
-const toPage = (messageType: MessageType) => {
+const toPage = (messageType: UncheckedMessageType) => {
   const messageCount: MessageCount = messageStore.messageCount;
   switch (messageType) {
-    case MessageType.LIKE_OR_FAVORITE:
+    case UncheckedMessageType.LIKE_OR_FAVORITE:
       clearUncheckedMessageCount(messageType).then(() => {
         messageCount.likeOrFavoriteCount = 0;
       });
       break;
-    case MessageType.COMMENT:
+    case UncheckedMessageType.COMMENT:
       clearUncheckedMessageCount(messageType).then(() => {
         messageCount.commentCount = 0;
       });
       break;
-    case MessageType.FOLLOW:
+    case UncheckedMessageType.FOLLOW:
       clearUncheckedMessageCount(messageType).then(() => {
         messageCount.followCount = 0;
       });
@@ -205,6 +199,7 @@ initData();
         color: #333;
         background-color: rgba(0, 0, 0, 0.03);
         border-radius: 20px;
+        border: #333 solid 1px;
       }
 
       .reds-tab-item {
@@ -224,6 +219,28 @@ initData();
         .badge-container {
           position: relative;
         }
+      }
+    }
+    .reds-tabs-list {
+      display: flex;
+      justify-content: flex-start;
+      padding: 0 32px;
+
+      .reds-tab-item {
+        padding: 0 16px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        color: rgba(51, 51, 51, 0.8);
+        border-radius: 20px;
+      }
+
+      /* 关键：提高优先级 */
+      .reds-tab-item.active {
+        font-weight: 600;
+        color: #333;
+        background-color: rgba(0, 0, 0, 0.03);
       }
     }
 

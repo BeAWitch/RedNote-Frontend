@@ -1,7 +1,9 @@
 <template>
   <div class="container" id="container">
     <div v-if="isLogin" class="push-container">
-      <div class="header"><span class="header-icon"></span><span class="header-title">发布图文</span></div>
+      <div class="header">
+        <span class="header-icon"></span><span class="header-title">发布图文</span>
+      </div>
       <div class="img-list">
         <el-upload
           v-model:file-list="fileList"
@@ -9,6 +11,7 @@
           multiple
           :limit="9"
           :auto-upload="false"
+          :on-change="handleFileChange"
         >
           <el-icon>
             <Plus />
@@ -134,21 +137,13 @@ import { getCategoryTreeData } from "@/apis/category";
 import { saveNoteByDTO, getNoteById, updateNoteByDTO } from "@/apis/note";
 import { getTagByKeyword } from "@/apis/tag";
 import { getFileFromUrl } from "@/utils/util";
-// import Schema from "async-validator";
-// import Crop from "@/components/Crop.vue";
+
 const props: CascaderProps = {
   label: "title",
   value: "id",
   checkStrictly: true, // 允许选择父级节点
 };
 const CascaderRef = ref<any>(null);
-
-// const rules = {
-//   title: { required: true, message: "标题不能为空" },
-//   content: { required: true, message: "内容不能为空" },
-//   category: { required: true, message: "分类不能为空" },
-// };
-// const validator = new Schema(rules);
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -171,6 +166,8 @@ const dynamicTags = ref<Array<string>>([]);
 const inputVisible = ref(false);
 const InputRef = ref<InstanceType<typeof ElInput>>();
 const hotTags = ref<Array<string>>([]);
+
+const FILE_MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
 const handleClose = (tag: string) => {
   dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1);
@@ -195,7 +192,7 @@ const handleInputConfirm = () => {
     if (!dynamicTags.value.includes(tag)) {
       dynamicTags.value.push(tag);
     } else {
-      ElMessage.warning('标签已存在');
+      ElMessage.warning("标签已存在");
     }
   }
 
@@ -271,7 +268,16 @@ const getNoteByIdMethod = (noteId: number) => {
 
 // 上传笔记功能
 const pubslish = () => {
+  console.log(note.value.title);
   // 验证
+  if (note.value.title === undefined) {
+    ElMessage.error("请输入标题～");
+    return;
+  }
+  if (note.value.content === undefined) {
+    ElMessage.error("请输入内容～");
+    return;
+  }
   if (fileList.value.length <= 0 || note.value.title === null || categoryList.value.length <= 0) {
     ElMessage.error("请选择图片，标签，分类～");
     return;
@@ -291,8 +297,7 @@ const pubslish = () => {
   note.value.cid = categoryList.value[1];
   note.value.tagList = dynamicTags.value;
   const coverImage = new Image();
-  if (fileList.value[0])
-    coverImage.src = fileList.value[0].url!;
+  if (fileList.value[0]) coverImage.src = fileList.value[0].url!;
   coverImage.onload = () => {
     const size = coverImage.width / coverImage.height;
     note.value.noteCoverHeight = size >= 1.3 ? 200 : 300;
@@ -324,7 +329,7 @@ const saveNote = (params: FormData) => {
   saveNoteByDTO(params)
     .then(() => {
       resetData();
-      ElMessage.success("发布成功,请等待审核结果");
+      ElMessage.success("发布成功");
     })
     .catch(() => {
       ElMessage.error("发布失败");
@@ -340,6 +345,18 @@ const resetData = () => {
   fileList.value = [];
   pushLoading.value = false;
   dynamicTags.value = [];
+};
+
+const handleFileChange = (file: UploadUserFile, fileList: UploadUserFile[]) => {
+  if (file.size && file.size <= FILE_MAX_SIZE) {
+    return;
+  }
+  ElMessage.error("图片大小不能超过 2MB");
+  // 从列表中移除当前文件
+  const index = fileList.findIndex((f) => f.uid === file.uid);
+  if (index !== -1) {
+    fileList.splice(index, 1);
+  }
 };
 
 const initData = () => {
@@ -519,11 +536,7 @@ a {
       .css-fm44j {
         -webkit-font-smoothing: antialiased;
         appearance: none;
-        font-family:
-          RedNum,
-          RedZh,
-          RedEn,
-          -apple-system;
+        font-family: RedNum, RedZh, RedEn, -apple-system;
         vertical-align: middle;
         text-decoration: none;
         border: 1px solid rgb(217, 217, 217);
@@ -560,9 +573,7 @@ a {
         margin-left: 250px;
         margin-bottom: 2px;
         cursor: pointer; /* 显示小手指针 */
-        transition:
-          background-color 0.3s,
-          color 0.3s; /* 添加过渡效果 */
+        transition: background-color 0.3s, color 0.3s; /* 添加过渡效果 */
       }
       button:hover {
         transform: scale(1.05); /* 鼠标移入时按钮稍微放大 */

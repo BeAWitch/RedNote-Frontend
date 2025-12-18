@@ -127,15 +127,13 @@
               </div>
             </div>
           </div>
-          <div class="follow">
-            <div class="tool-btn" v-show="uid !== currentUid">
-              <el-button :icon="ChatLineRound" circle @click="showChat()" />
-              <el-button type="danger" round v-if="_isFollow" @click="follow(uid, 1)"
-                >已关注</el-button
-              >
-              <el-button type="danger" round v-else @click="follow(uid, 0)">关注</el-button>
-            </div>
-          </div>
+        </div>
+      </div>
+      <div class="follow">
+        <div class="tool-btn" v-show="uid !== currentUid">
+          <el-button :icon="ChatLineRound" circle @click="showChat()" />
+          <el-button type="danger" round v-if="_isFollow" @click="follow(uid, 1)">已关注</el-button>
+          <el-button type="danger" round v-else @click="follow(uid, 0)">关注</el-button>
         </div>
       </div>
     </div>
@@ -525,29 +523,6 @@ initData();
             }
           }
         }
-
-        .follow {
-          position: absolute;
-          margin-left: auto;
-          display: block;
-          right: 0;
-          top: 0;
-        }
-      }
-
-      .tool-btn {
-        position: absolute;
-        top: 50%;
-        right: 10%;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .tool-btn {
-        @media screen and (min-width: 109.375rem) {
-          display: inline-block;
-        }
       }
     }
   }
@@ -603,9 +578,35 @@ initData();
     padding-left: 2rem;
   }
 
+  .follow {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+
+    tool-btn {
+      position: absolute;
+      top: 50%;
+      right: 10%;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    tool-btn {
+      @media screen and (min-width: 109.375rem) {
+        display: inline-block;
+      }
+    }
+  }
+
   .submit {
     padding: 10px 12px 10px 12px;
     margin-top: 10px;
+
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    justify-content: flex-end;
 
     button {
       width: 100px;
@@ -615,14 +616,11 @@ initData();
       margin-left: 250px;
       margin-bottom: 2px;
       cursor: pointer;
-      /* 显示小手指针 */
       transition: background-color 0.3s, color 0.3s;
-      /* 添加过渡效果 */
     }
 
     button:hover {
       transform: scale(1.05);
-      /* 鼠标移入时按钮稍微放大 */
     }
 
     .publishBtn {

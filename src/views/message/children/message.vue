@@ -15,9 +15,19 @@
             </div>
 
             <div class="interaction-content">
-              <span v-if="conversation.latestMessage.msgType == ConversationMessageType.TEXT">{{ conversation.latestMessage.content }}</span>
-              <span v-if="conversation.latestMessage.msgType == ConversationMessageType.IMAGE">[图片]</span>
-              <div class="msg-count" v-show="conversation.unreadCount > 0">{{ conversation.unreadCount }}</div>
+              <template v-for="(item, i) in conversation.latestMessage.content.contents" :key="i">
+                <!-- 文本 -->
+                <span v-if="item.type === ConversationMessageType.TEXT">
+                  {{ item.content }}
+                </span>
+                <!-- 图片 -->
+                <span v-if="item.type === ConversationMessageType.IMAGE">
+                  [图片]
+                </span>
+              </template>
+              <div class="msg-count" v-show="conversation.unreadCount > 0">
+                {{ conversation.unreadCount }}
+              </div>
             </div>
           </div>
         </div>
@@ -39,7 +49,8 @@ import { formateTime } from "@/utils/util";
 import Chat from "@/components/Chat.vue";
 import { clearUnreadMessageCount } from "@/apis/message";
 import { useRouter } from "vue-router";
-import { Conversation, ConversationMessageType } from "@/types/message";
+import { ConversationMessageType } from "@/types/message";
+import type { Conversation } from "@/types/message";
 
 const router = useRouter();
 const messageStore = useMessageStore();
@@ -132,6 +143,7 @@ const close = (lastId: number) => {
       .info {
         flex-grow: 1;
         flex-shrink: 1;
+        cursor: pointer;
 
         .user-info {
           display: flex;
@@ -158,10 +170,11 @@ const close = (lastId: number) => {
           color: #333;
           line-height: 140%;
           cursor: pointer;
-          justify-content: space-between;
+          justify-content: flex-start;
           align-items: center;
 
           .msg-count {
+            margin-left: auto;
             width: 20px;
             height: 20px;
             line-height: 20px;

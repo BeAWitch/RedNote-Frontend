@@ -205,6 +205,8 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
 import { off } from "process";
 import { tr } from "element-plus/es/locales.mjs";
+import { clearUncheckedMessageCount } from "@/apis/message";
+import { UncheckedMessageType } from "@/types/message";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -298,6 +300,9 @@ const like = (nid: number, uid: number, index: number, val: number) => {
 };
 
 const initData = () => {
+  // 清除未查看的动态数量
+  clearUncheckedMessageCount(UncheckedMessageType.TREND);
+
   isLogin.value = userStore.isLogin();
   getFollowTrends();
 };
