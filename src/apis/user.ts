@@ -35,9 +35,9 @@ export const loginByCode = (data: UserLogin) => {
  * @param type
  * @returns
  */
-export const getTrendByUser = (currentPage: number, pageSize: number, userId: number, type:number) => {
+export const getTrendByUser = (currentPage: number, pageSize: number, userId: number, type: number) => {
   return request<any>({
-    url: `/web/user/getTrendByUser/${currentPage}/${pageSize}`,
+    url: `/web/note/getTrendByUser/${currentPage}/${pageSize}`,
     method: "get",
     params: {
       userId,
