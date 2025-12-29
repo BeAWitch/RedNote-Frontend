@@ -194,7 +194,7 @@
 
 <script lang="ts" setup>
 import { ChatRound, More } from "@element-plus/icons-vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { getFollowTrend } from "@/apis/follow";
 import { formateTime, refreshTab } from "@/utils/util";
 import FloatingBtn from "@/components/FloatingBtn.vue";
@@ -207,6 +207,7 @@ import { off } from "process";
 import { tr } from "element-plus/es/locales.mjs";
 import { clearUncheckedMessageCount } from "@/apis/message";
 import { UncheckedMessageType } from "@/types/message";
+import { get } from "node_modules/axios/index.d.cts";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -246,7 +247,7 @@ const getFollowTrends = () => {
     });
     trendTotal.value = trendList.length;
     offset.value = res.data.offset;
-    lastTime.value = res.data.lastTime;
+    lastTime.value = res.data.minTime;
   });
 };
 
@@ -300,9 +301,6 @@ const like = (nid: number, uid: number, index: number, val: number) => {
 };
 
 const initData = () => {
-  // 清除未查看的动态数量
-  clearUncheckedMessageCount(UncheckedMessageType.TREND);
-
   isLogin.value = userStore.isLogin();
   getFollowTrends();
 };

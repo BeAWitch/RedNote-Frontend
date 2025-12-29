@@ -302,7 +302,7 @@ import SujContainer from "@/components/SujContainer.vue";
 import SearchContainer from "@/components/SearchContainer.vue";
 import { addRecord, getRecordByKeyWord } from "@/apis/search";
 import { getRandomString } from "@/utils/util";
-import { getConversationList, getUncheckedMessageCount } from "@/apis/message";
+import { clearUncheckedMessageCount, getConversationList, getUncheckedMessageCount } from "@/apis/message";
 import { useMessageStore } from "@/stores/messageStore";
 import { logout } from "@/apis/user";
 import { wsKey } from "@/constants/constant";
@@ -463,6 +463,10 @@ const toLink = (num: number) => {
   if (url === "/user") {
     router.push({ name: "user", query: { uid: userInfo.value.id } });
     return;
+  }
+  if (url === "/follow") {
+    // 清除未查看的动态数量
+    clearUncheckedMessageCount(UncheckedMessageType.TREND);
   }
   router.push({ path: url });
 };
