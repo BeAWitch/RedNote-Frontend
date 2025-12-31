@@ -464,9 +464,10 @@ const toLink = (num: number) => {
     router.push({ name: "user", query: { uid: userInfo.value.id } });
     return;
   }
-  if (url === "/follow") {
+  if (url === "/followTrend") {
     // 清除未查看的动态数量
     clearUncheckedMessageCount(UncheckedMessageType.TREND);
+    messageStore.messageCount.trendCount = 0;
   }
   router.push({ path: url });
 };
