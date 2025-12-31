@@ -1,17 +1,14 @@
 import loading from "@/assets/loading.png";
 import error from "@/assets/error.png";
 import { reactive } from "vue";
-// websocket地址
-// export const wsKey = "ws://www.ccimgvideo.top/ws/";
-// // 项目url地址
-// export const baseURL = "http://www.ccimgvideo.top/api";
 
 // 本地项目websocket地址
 export const wsKey = "ws://localhost:8080/web/ws/";
 // 本地项目url地址
 export const baseURL = "http://localhost:8080/";
 
-// 图片必须保持在336和186之间
+// 文件大小限制
+export const FILE_MAX_SIZE = 10 * 1024 * 1024; // 10M
 
 export const options = reactive({
   // 唯一key值

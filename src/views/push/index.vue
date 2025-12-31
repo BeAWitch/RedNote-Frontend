@@ -137,6 +137,7 @@ import { getCategoryTreeData } from "@/apis/category";
 import { saveNoteByDTO, getNoteById, updateNoteByDTO } from "@/apis/note";
 import { getTagByKeyword } from "@/apis/tag";
 import { getFileFromUrl } from "@/utils/util";
+import { FILE_MAX_SIZE } from "@/constants/constant";
 
 const props: CascaderProps = {
   label: "title",
@@ -166,8 +167,6 @@ const dynamicTags = ref<Array<string>>([]);
 const inputVisible = ref(false);
 const InputRef = ref<InstanceType<typeof ElInput>>();
 const hotTags = ref<Array<string>>([]);
-
-const FILE_MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
 const handleClose = (tag: string) => {
   dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1);
@@ -351,7 +350,7 @@ const handleFileChange = (file: UploadUserFile, fileList: UploadUserFile[]) => {
   if (file.size && file.size <= FILE_MAX_SIZE) {
     return;
   }
-  ElMessage.error("图片大小不能超过 2MB");
+  ElMessage.error(`图片大小不能超过 "${FILE_MAX_SIZE / 1024 / 1024}"MB`);
   // 从列表中移除当前文件
   const index = fileList.findIndex((f) => f.uid === file.uid);
   if (index !== -1) {
