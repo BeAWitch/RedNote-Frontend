@@ -403,6 +403,22 @@ watch(
   }
 );
 
+watch(
+  () => [userStore.isLogin()],
+  (val) => {
+    loginShow.value = val[0] === false;
+    userInfo.value = userStore.getUserInfo();
+    if (val) {
+      getWsMessage();
+    } else {
+      ws.value.onclose();
+    }
+  },
+  {
+    deep: true,
+  }
+);
+
 const messageCount = computed({
   get: () => {
     return (
