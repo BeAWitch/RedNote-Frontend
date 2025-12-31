@@ -315,7 +315,7 @@ const route = useRoute();
 const userStore = useUserStore();
 const searchStore = useSearchStore();
 const messageStore = useMessageStore();
-const loginShow = ref(userStore.isLogin() === false);
+const loginShow = ref(!userStore.loginFlag);
 const userInfo = ref<any>({});
 const showHistory = ref(false);
 const showSearch = ref(false);
@@ -404,11 +404,11 @@ watch(
 );
 
 watch(
-  () => [userStore.isLogin()],
+  () => [userStore.loginFlag],
   (val) => {
     loginShow.value = val[0] === false;
     userInfo.value = userStore.getUserInfo();
-    if (val) {
+    if (val[0]) {
       getWsMessage();
     } else {
       ws.value.onclose();
@@ -593,7 +593,7 @@ const userLogout = () => {
 };
 
 const getWsMessage = async () => {
-  if (userInfo.value === null || userInfo.value === undefined) {
+  if (userStore.loginFlag === false) {
     return;
   }
   loginShow.value = false;

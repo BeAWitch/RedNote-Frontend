@@ -8,6 +8,8 @@ import type { User } from "@/types/user";
 export const userStore = defineStore("userStore", () => {
   const token = ref("");
 
+  const loginFlag = ref(false);
+
   const getToken = () => {
     return storage.get("accessToken");
   };
@@ -22,14 +24,18 @@ export const userStore = defineStore("userStore", () => {
 
   const isLogin = () => {
     const user = storage.get("userInfo") as User;
-    return user != null && user != undefined;
+    const token = storage.get("accessToken");
+    loginFlag.value = user != null && user != undefined && token != null && token != undefined;
+    return loginFlag.value;
   };
 
   const logout = () => {
     window.localStorage.clear();
+    loginFlag.value = false;
+    token.value = "";
   };
 
-  return { token, getToken, getUserInfo, setUserInfo, logout, isLogin };
+  return { token, loginFlag, getToken, getUserInfo, setUserInfo, logout, isLogin };
 });
 
 export function useUserStore() {

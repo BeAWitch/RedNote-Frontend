@@ -6,16 +6,16 @@ import { ElMessage } from "element-plus";
 // 创建 axios 实例
 const service = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
-  timeout: 50000
+  timeout: 50000,
 });
 
 // 请求拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const userStore = useUserStore();
-    if (userStore.getToken()) {
+    if (userStore.getToken() && userStore.getUserInfo()) {
       config.headers.accessToken = userStore.getToken();
-      config.headers.userId = userStore.getUserInfo()?.id || NaN;
+      config.headers.userId = userStore.getUserInfo().id;
     }
     return config;
   },
@@ -44,27 +44,32 @@ service.interceptors.response.use(
     }
     return Promise.reject(response.data);
   },
-  (error) => { // 错误处理函数
+  (error) => {
+    // 错误处理函数
     if (error.response) {
       const { status, data } = error.response;
 
       switch (status) {
         case 401:
           handle401();
-          break;
+          return Promise.resolve({
+            code: 401,
+            message: "未登录或登录已过期",
+            data: null,
+          });
         case 404:
           ElMessage.warning("请求地址不存在");
           break;
         case 500:
-          ElMessage.warning('服务器内部错误');
+          ElMessage.warning("服务器内部错误");
           break;
         default:
-          ElMessage.error(data?.message || '请求失败');
+          ElMessage.error(data?.message || "请求失败");
       }
     } else if (error.request) {
-      ElMessage.error('网络连接失败，请检查网络');
+      ElMessage.error("网络连接失败，请检查网络");
     } else {
-      ElMessage.error('请求配置错误');
+      ElMessage.error("请求配置错误");
     }
 
     return Promise.reject(error);
@@ -75,11 +80,13 @@ service.interceptors.response.use(
 function handle401() {
   if (isShowNotice) return;
   isShowNotice = true;
-  
+
   ElMessage.warning("登录过期，请重新登录");
 
   // 清理登录态
   localStorage.clear();
+  const userStore = useUserStore();
+  userStore.logout();
 }
 
 // 导出 axios 实例
