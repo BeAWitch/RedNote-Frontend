@@ -6,7 +6,7 @@
 
 > 本项目为软件工程专业的毕业设计，水平有限，不嫌弃可以直接拿去用。
 
-> 不太会写前端，代码挺丑陋的。目前还没有同步后端的 AI 功能。
+> 不太会写前端，在别人的基础上改的，代码挺丑陋的。目前还没有同步后端的 AI 功能。
 
 ## 项目概览
 
@@ -55,4 +55,7 @@ rednote-frontend/
 ├── public/                # 直接提供的静态文件。
 └── Configuration Files    # Vite、TypeScript、ESLint 配置。
 ```
+
+### 界面风格演示
+<img width="1908" height="945" alt="主界面" src="https://github.com/user-attachments/assets/04e516b1-7a83-4b96-89aa-26d772b2b4cb" />
 
