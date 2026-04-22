@@ -54,10 +54,23 @@
               <div class="title">{{ noteInfo.title }}</div>
               <div class="desc">
                 <span>{{ noteInfo.content }} <br /></span>
+                <span v-if="noteTranslatedText" class="translated-text" style="color: #666; margin-top: 8px; display: block; font-size: 14px;">
+                  <b>[AI 翻译]:</b> {{ noteTranslatedText }}<br/>
+                </span>
                 <a class="tag tag-search" v-for="(item, index) in noteInfo.tagList" :key="index">#{{ item.title }}</a>
               </div>
               <div class="bottom-container">
                 <span class="date">{{ noteInfo.time }}</span>
+                <el-button 
+                  v-if="isEnglishText(noteInfo.content)" 
+                  type="primary" 
+                  link 
+                  :loading="translatingNote" 
+                  @click="handleTranslateNote"
+                  style="font-size: 13px;"
+                >
+                  <el-icon><ChatRound /></el-icon>翻译成中文
+                </el-button>
               </div>
             </div>
             <div class="divider interaction-divider"></div>
@@ -159,6 +172,7 @@ import { followById } from "@/apis/follow";
 import Comment from "@/components/Comment.vue";
 import type { CommentDTO } from "@/types/comment";
 import { saveCommentByDTO } from "@/apis/comment";
+import { translateText } from "@/apis/ai";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
 const userStore = useUserStore();
@@ -214,12 +228,48 @@ const likeOrComment = ref({
   isLike: false,
   isComment: false,
 });
+const noteTranslatedText = ref("");
+const translatingNote = ref(false);
+
+// 判断是否为英文
+const isEnglishText = (text: string) => {
+  if (!text) return false;
+  return !/[\u4e00-\u9fa5]/.test(text) && /[a-zA-Z]/.test(text);
+};
+
+// 笔记详情翻译
+const handleTranslateNote = async () => {
+  if (!noteInfo.value.content || translatingNote.value) return;
+  
+  translatingNote.value = true;
+  try {
+    const userInfo = userStore.getUserInfo();
+    const res = await translateText({
+      userId: userInfo ? Number(userInfo.id) : 0,
+      originalText: noteInfo.value.content,
+      targetLanguage: "中文"
+    });
+    
+    if (res.data && res.data.success) {
+      noteTranslatedText.value = res.data.message;
+    } else {
+      ElMessage.error(res.data?.error || "翻译失败");
+    }
+  } catch (error) {
+    ElMessage.error("翻译请求异常");
+    console.error(error);
+  } finally {
+    translatingNote.value = false;
+  }
+};
 
 watch(
   () => [props.nowTime],
   () => {
     currentPage.value = 1;
     if (props.nid !== null && !isNaN(props.nid)) {
+      noteTranslatedText.value = ""; // 重置翻译内容
+      translatingNote.value = false; // 重置翻译状态
       getNoteById(props.nid).then((res: any) => {
         console.log("---note", res.data);
         noteInfo.value = res.data;

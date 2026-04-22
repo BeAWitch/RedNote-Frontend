@@ -19,10 +19,20 @@
                 </div>
               </div>
               <div class="content">{{ levelOneComment.content }}</div>
-
+              <div v-if="levelOneComment.translatedText" class="translated-text" style="margin-top: 4px; line-height: 140%; color: #666; font-size: 13px;">
+                <b>[AI 翻译]:</b> {{ levelOneComment.translatedText }}
+              </div>
               <div class="info">
                 <div class="date">
                   <span>{{ levelOneComment.time }}</span>
+                  <span 
+                    v-if="isEnglishText(levelOneComment.content) && !levelOneComment.translatedText" 
+                    @click="handleTranslateComment(levelOneComment)" 
+                    class="translate-btn"
+                  >
+                    <span v-if="levelOneComment.translating">翻译中...</span>
+                    <span v-else>翻译</span>
+                  </span>
                 </div>
                 <div class="interactions">
                   <div class="like">
@@ -86,10 +96,20 @@
                       >{{ levelTwoComment.replyUsername }}: </span
                     >{{ levelTwoComment.content }}
                   </div>
-
+                  <div v-if="levelTwoComment.translatedText" class="translated-text" style="margin-top: 4px; line-height: 140%; color: #666; font-size: 13px;">
+                    <b>[AI 翻译]:</b> {{ levelTwoComment.translatedText }}
+                  </div>
                   <div class="info">
                     <div class="date">
                       <span>{{ levelTwoComment.time }}</span>
+                      <span 
+                        v-if="isEnglishText(levelTwoComment.content) && !levelTwoComment.translatedText" 
+                        @click="handleTranslateComment(levelTwoComment)" 
+                        class="translate-btn"
+                      >
+                        <span v-if="levelTwoComment.translating">翻译中...</span>
+                        <span v-else>翻译</span>
+                      </span>
                     </div>
                     <div class="interactions">
                       <div class="like">
@@ -177,6 +197,11 @@ import {
 import { likeOrFavoriteByDTO } from "@/apis/likeOrFavorite";
 import type { LikeOrFavoriteDTO } from "@/types/likeOrFavorite";
 import { formateTime } from "@/utils/util";
+import { translateText } from "@/apis/ai";
+import { useUserStore } from "@/stores/userStore";
+import { ElMessage } from "element-plus";
+
+const userStore = useUserStore();
 const props = defineProps({
   nid: {
     type: Number,
@@ -212,6 +237,38 @@ const loadedCommentCount = ref(0);
 const showLevelTwoCommentCount = 3;
 const commentPageMap = new Map(); // 记录每个一级评论的页数
 const levelTwoCommentCountMap = new Map(); // 记录每个一级评论的二级评论数量
+
+// 检测是否主要包含英文（不包含中文字符，并且包含英文字母）
+const isEnglishText = (text: string) => {
+  if (!text) return false;
+  return !/[\u4e00-\u9fa5]/.test(text) && /[a-zA-Z]/.test(text);
+};
+
+// 处理评论翻译
+const handleTranslateComment = async (comment: any) => {
+  if (!comment.content || comment.translating) return;
+  
+  comment.translating = true;
+  try {
+    const userInfo = userStore.getUserInfo();
+    const res = await translateText({
+      userId: userInfo ? Number(userInfo.id) : 0,
+      originalText: comment.content,
+      targetLanguage: "中文"
+    });
+    
+    if (res.data && res.data.success) {
+      comment.translatedText = res.data.message;
+    } else {
+      ElMessage.error(res.data?.error || "翻译失败");
+    }
+  } catch (error) {
+    ElMessage.error("翻译请求异常");
+    console.error(error);
+  } finally {
+    comment.translating = false;
+  }
+};
 
 const likeComment = (comment: any, status: number, one: number, two: number) => {
   const data = {} as LikeOrFavoriteDTO;
@@ -343,6 +400,15 @@ watch(
 );
 </script>
 <style lang="less" scoped>
+.translate-btn {
+  margin-left: 8px;
+  cursor: pointer;
+  color: #3d8af5;
+  font-size: 12px;
+}
+.translate-btn:hover {
+  text-decoration: underline;
+}
 .comments-container {
   padding: 16px;
 

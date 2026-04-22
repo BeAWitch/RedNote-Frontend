@@ -8,6 +8,12 @@ export interface AINoteOptimizeRequestDTO {
   tags?: string[];
 }
 
+export interface AITranslationRequestDTO {
+  userId: number;
+  originalText: string;
+  targetLanguage: string;
+}
+
 export interface AIResponseVO {
   message: string;
   success: boolean;
@@ -28,3 +34,17 @@ export const optimizeNote = (data: AINoteOptimizeRequestDTO) => {
     data: data,
   });
 };
+
+/**
+ * AI 翻译文本
+ * @param data 
+ * @returns 
+ */
+export const translateText = (data: AITranslationRequestDTO) => {
+  return request<AIResponseVO>({
+    url: "/web/ai/translate",
+    method: "post",
+    data: data,
+  });
+};
+
