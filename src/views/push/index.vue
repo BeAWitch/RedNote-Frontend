@@ -51,6 +51,9 @@
               表情
             </span>
           </button>
+          <el-button type="primary" :loading="aiLoading" @click="handleOptimize" style="margin-left: 10px; height: 26px; width: 100px;; border-radius: 4px;">
+            <span class="btn-content">✨优化/生成</span>
+          </el-button>
         </div>
         <div class="tag-list">
           <el-tag
@@ -138,6 +141,8 @@ import { saveNoteByDTO, getNoteById, updateNoteByDTO } from "@/apis/note";
 import { getTagByKeyword } from "@/apis/tag";
 import { getFileFromUrl } from "@/utils/util";
 import { FILE_MAX_SIZE } from "@/constants/constant";
+import { uploadBatchFiles } from "@/apis/oss";
+import { optimizeNote, type AINoteOptimizeRequestDTO } from "@/apis/ai";
 
 const props: CascaderProps = {
   label: "title",
@@ -161,6 +166,7 @@ const currentPage = ref(1);
 const pageSize = 10;
 const tagTotal = ref(0);
 const pushLoading = ref(false);
+const aiLoading = ref(false);
 const isLogin = ref(false);
 const inputValue = ref("");
 const dynamicTags = ref<Array<string>>([]);
@@ -308,6 +314,64 @@ const pubslish = () => {
       saveNote(params);
     }
   };
+};
+
+// AI 优化
+const handleOptimize = async () => {
+  if (fileList.value.length === 0 && !note.value.title && !note.value.content && dynamicTags.value.length === 0) {
+    ElMessage.warning("请至少提供一些图片、标题、正文或标签，以便 AI 参考！");
+    return;
+  }
+
+  aiLoading.value = true;
+  try {
+    let imageUrls: string[] = [];
+    let filesToUpload: any[] = [];
+
+    // 区分已经有URL的（比如编辑已有笔记）和需要新上传的本地文件
+    fileList.value.forEach(file => {
+      if (file.url && file.url.startsWith("http")) {
+        imageUrls.push(file.url);
+      } else if (file.raw) {
+        filesToUpload.push(file.raw);
+      }
+    });
+
+    // 如果有本地新图片，先上传OSS拿URL
+    if (filesToUpload.length > 0) {
+      const formData = new FormData();
+      filesToUpload.forEach(file => {
+        formData.append("files", file);
+      });
+      const res = await uploadBatchFiles(formData);
+      if (res.data && Array.isArray(res.data)) {
+        imageUrls = imageUrls.concat(res.data);
+      }
+    }
+
+    const userInfo = userStore.getUserInfo();
+    const requestData: AINoteOptimizeRequestDTO = {
+      userId: userInfo ? Number(userInfo.id) : 0,
+      imageUrls: imageUrls,
+      title: note.value.title,
+      content: note.value.content,
+      tags: dynamicTags.value
+    };
+
+    const aiRes = await optimizeNote(requestData);
+    if (aiRes.data && aiRes.data.success) {
+      // 替换正文内容
+      note.value.content = aiRes.data.message;
+      ElMessage.success("优化成功！");
+    } else {
+      ElMessage.error(aiRes.data?.error || "优化失败，请稍后重试");
+    }
+  } catch (error) {
+    console.error("AI 优化请求错误", error);
+    ElMessage.error("AI 优化失败，请检查网络或稍后重试");
+  } finally {
+    aiLoading.value = false;
+  }
 };
 
 const updateNote = (params: FormData) => {

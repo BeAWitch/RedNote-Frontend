@@ -31,18 +31,6 @@
           <SujContainer v-show="showHistory" :closeHistoryRecord="showHistory"></SujContainer>
         </div>
         <div class="right">
-          <el-tooltip content="移动端" effect="dark" placement="bottom">
-            <Iphone class="right-icon" @click="handleClick('')" />
-          </el-tooltip>
-
-          <el-tooltip content="后台管理" effect="dark" placement="bottom">
-            <Monitor class="right-icon" @click="handleClick('')" />
-          </el-tooltip>
-
-          <el-tooltip content="Arco后台" effect="dark" placement="bottom">
-            <DataLine class="right-icon" @click="handleClick('')" />
-          </el-tooltip>
-
           <el-tooltip content="GitHub仓库" effect="dark" placement="bottom">
             <span class="right-icon" @click="handleClick('https://github.com/BeAWitch')">
               <svg
