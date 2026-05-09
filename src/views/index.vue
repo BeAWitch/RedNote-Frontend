@@ -94,6 +94,13 @@
               发布</span
             >
           </li>
+          <li :class="activeLink == 6 ? 'active-channel' : ''" @click="toLink(6)">
+            <CirclePlus style="width: 1.3em; height: 1.3em; margin-right: 8px" /><span
+              class="channel"
+            >
+              智能创作</span
+            >
+          </li>
           <div v-if="userInfo == null">
             <el-button type="danger" round @click="login" class="custom-button">登录</el-button>
           </div>
@@ -317,7 +324,7 @@ const ws = ref();
 const toUpshow = ref(false);
 const isShowDot = ref(false);
 
-const routerList = ["/dashboard", "/followTrend", "/notice", "/push", "/user", "/search"];
+const routerList = ["/dashboard", "/followTrend", "/notice", "/push", "/user", "/search", "/creative"];
 
 // 监听外部点击
 onMounted(() => {

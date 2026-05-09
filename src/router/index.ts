@@ -48,6 +48,11 @@ export const routes = [
         component: () => import("@/views/search/index.vue"),
         name: "search",
       },
+      {
+        path: "/creative",
+        component: () => import("@/views/creative/index.vue"),
+        name: "creative",
+      },
     ],
   },
 ];
